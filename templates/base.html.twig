@@ -1,17 +1,102 @@
+{# templates/base.html.twig #}
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IsoMessage{% endblock %}</title>
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    {# Liens vers Bootstrap CSS (nécessaire pour les classes 'dropdown', 'd-flex', etc.) #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <link rel="stylesheet" href="{{ asset('css/isocel-style.css') }}">
+
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid d-flex p-0">
+        <div class="sidebar">
+            <a href="{{ path('app_dashboard') }}" class="logo">ISOCEL</a>
+
+            <div class="nav-section">TABLEAU DE BORD</div>
+            <a href="{{ path('app_dashboard') }}" class="nav-item {% if app.request.get('_route') == 'app_dashboard' %}active{% endif %}">
+                <span class="icon">📊</span>
+                Tableau de bord
+            </a>
+
+            <div class="nav-section">CARNET D'ADRESSE</div>
+            <a href="{{ path('app_contact_index') }}" class="nav-item {% if app.request.get('_route') starts with 'app_contact' %}active{% endif %}">
+                <span class="icon">👥</span>
+                Contacts
+            </a>
+            <div class="nav-section">Groupe de Contacts</div>
+            <a href="{{ path('app_contact_group_index') }}" class="nav-item {% if app.request.get('_route') starts with 'app_contact_group' %}active{% endif %}">
+                <span class="icon">👥</span>
+                Groupe de contacts
+            </a>
+
+            <div class="nav-section">CAMPAGNES</div>
+            <a href="#" class="nav-item {% if app.request.get('_route') starts with 'app_sms' %}expanded{% endif %}" id="sms-nav">
+                <span class="icon">📱</span>
+                SMS
+                <span class="arrow">▼</span>
+            </a>
+
+            <div class="sub-nav" {% if app.request.get('_route') starts with 'app_sms' %}style="display: block;"{% endif %}>
+                <a href="{{ path('app_send_sms') }}" class="sub-nav-item {% if app.request.get('_route') == 'app_send_sms' %}active{% endif %}">Messages</a>
+                <a href="#" class="sub-nav-item {% if app.request.get('_route') == 'sms_campaigns' %}active{% endif %}">Campagnes</a>
+                <a href="#" class="sub-nav-item {% if app.request.get('_route') == 'sms_alerts' %}active{% endif %}">Alertes</a>
+            </div>
+
+            <div class="nav-section">DÉVELOPPEUR & API</div>
+            <a href="#" class="nav-item {% if app.request.get('_route') == 'app_api_key' %}active{% endif %}">
+                <span class="icon">🔧</span>
+                Intégration & clé API
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>{# Laissez vide si vous n'avez pas de contenu à gauche du header #}</div>
+
+                {# Structure du menu déroulant utilisateur #}
+                <div class="user-info dropdown">
+                    {# Le lien/bouton qui déclenche le menu #}
+                    <a href="#" class="dropdown-toggle d-flex align-items-center text-decoration-none text-dark" id="dropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span>{{ app.user ? app.user.fullName : 'Utilisateur' }}</span>
+                        <div class="user-avatar ms-2">
+                            {{ app.user ? app.user.initials : 'U' }}
+                        </div>
+                    </a>
+
+                    {# Le menu déroulant lui-même #}
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                        {% if app.user %}
+                            <li><h6 class="dropdown-header">{{ app.user.fullName }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+                        {# Remplacez 'app_user_settings' par la route réelle de votre page de paramètres utilisateur #}
+                        <li><a class="dropdown-item" href="#">Paramètres</a></li>
+                        {# Route standard de déconnexion de Symfony #}
+                        <li><a class="dropdown-item" href="#">Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-area">
+                {# C'est le bloc où le contenu spécifique de chaque page sera inséré #}
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    {# Liens vers Bootstrap JS (obligatoire pour le fonctionnement du dropdown-toggle) #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    {# Votre JavaScript personnalisé #}
+    <script src="{{ asset('js/isocel-app.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+</body>
 </html>

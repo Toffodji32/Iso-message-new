@@ -1,0 +1,26 @@
+{# templates/contact/_form.html.twig #}
+
+{# Ce partiel est inclus par les pages de création et de modification de contact #}
+
+{% for field in form %}
+    {% if field.vars.name not in ['_token'] %}
+        <div class="form-group" style="margin-bottom: 15px;">
+            {{ form_label(field, null, {'label_attr': {'style': 'font-weight: bold;'}}) }}
+
+            {# Appliquer l'ID et la classe spécifique UNIQUEMENT au champ contactGroups #}
+            {% if field.vars.name == 'contactGroups' %}
+                {{ form_widget(field, {'attr': {'class': 'form-control select2-enable', 'id': 'contact_groups_select', 'style': 'width: 100%; padding: 8px;'}}) }}
+            {% else %}
+                {# Appliquer les styles génériques aux autres champs #}
+                {{ form_widget(field, {'attr': {'class': 'form-control', 'style': 'width: 100%; padding: 8px;'}}) }}
+            {% endif %}
+
+            {{ form_errors(field) }}
+        </div>
+    {% endif %}
+{% endfor %}
+
+{# Le bouton est rendu ici par défaut, mais vous pouvez le passer en paramètre comme vous le faites #}
+<button type="submit" style="padding: 10px 20px; background-color: #007BFF; color: white; border: none; border-radius: 4px;">
+    {{ button_label|default('Enregistrer') }} {# Utilise le 'button_label' passé, ou 'Enregistrer' par défaut #}
+</button>

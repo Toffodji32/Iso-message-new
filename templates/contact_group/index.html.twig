@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Groupes de Contacts - IsoMessage{% endblock %}
+
+{% block body %}
+    <div class="tabs">
+        <a href="{{ path('app_contact_index') }}" class="tab {{ app.request.get('_route') == 'app_contact_index' ? 'active' : '' }}">MES CONTACTS</a>
+        <a href="{{ path('app_contact_group_index') }}" class="tab {{ app.request.get('_route') == 'app_contact_group_index' ? 'active' : '' }}">GROUPE DE CONTACTS</a>
+    </div>
+
+    <div class="controls">
+        <div class="controls-right">
+            <a href="{{ path('app_contact_group_new') }}" class="btn btn-primary">+ Ajouter un groupe</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom du Groupe</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in contact_groups %}
+                    <tr>
+                        <td>{{ group.name }}</td>
+                        <td>
+                            <a href="{{ path('app_contact_group_edit', {id: group.id}) }}" class="btn btn-sm">✏️ Modifier</a>
+                            <form method="POST" action="{{ path('app_contact_group_delete', {id: group.id}) }}" style="display: inline-block;" onsubmit="return confirm('Supprimer ce groupe ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ group.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger">🗑 Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center">Aucun groupe de contacts trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

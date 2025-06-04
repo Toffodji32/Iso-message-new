@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau contact{% endblock %}
+{% block header_title %}Carnet d'adresses > Nouveau contact{% endblock %}
+
+{% block body %}
+
+      <h1 style="margin-bottom: 20px;">Ajouter un nouveau contact</h1>
+
+     <div style="margin-top: 20px;">
+    <a href="{{ path('app_contact_index') }}"
+       style="
+           display: inline-block;
+           background-color: #e0e0e0;
+           color: #333;
+           padding: 10px 18px;
+           border-radius: 6px;
+           text-decoration: none;
+           font-weight: bold;
+           transition: background-color 0.3s, color 0.3s;"
+       onmouseover="this.style.backgroundColor='#d0d0d0'; this.style.color='#000';"
+       onmouseout="this.style.backgroundColor='#e0e0e0'; this.style.color='#333';"
+    >
+        ← Retour
+    </a>
+    </div>
+
+
+    <div>
+        {{ form_start(form, {'attr': {'class': 'contact-form'}}) }}
+
+        {% for field in form %}
+            {% if field.vars.name not in ['_token'] %}
+                <div class="form-group" style="margin-bottom: 15px;">
+                    {{ form_label(field, null, {'label_attr': {'style': 'font-weight: bold;'}}) }}
+                    {{ form_widget(field, {'attr': {'class': 'form-control', 'style': 'width: 100%; padding: 8px;'}}) }}
+                    {{ form_errors(field) }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <button type="submit" style="padding: 10px 20px; background-color: #007BFF; color: white; border: none; border-radius: 4px;">
+            Enregistrer
+        </button>
+
+        {{ form_end(form) }}
+    </div>
+
+
+
+{% endblock %}

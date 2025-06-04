@@ -1,0 +1,527 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Envoyer un SMS - IsoMessage{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .sms-form-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .sms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .sms-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            background-color: #fff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .datetime-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clear-datetime {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .clear-datetime:hover {
+            background: #e5e7eb;
+        }
+
+        .phone-input {
+            grid-column: span 2;
+        }
+
+        .sms-options {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sms-options .form-label {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.75rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .radio-item input[type="radio"] {
+            margin: 0;
+        }
+
+        .radio-item label {
+            margin: 0;
+            color: #1f2937;
+            font-weight: normal;
+        }
+
+        .message-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .message-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .message-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .preview-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .preview-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-preview {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 0.75rem;
+            min-height: 100px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #4b5563;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            color: #065f46;
+            background-color: #d1fae5;
+            border-color: #a7f3d0;
+        }
+
+        .alert-danger {
+            color: #991b1b;
+            background-color: #fee2e2;
+            border-color: #fecaca;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .info-icon {
+            color: #6b7280;
+            margin-left: 0.25rem;
+        }
+
+        .character-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+
+        .recipient-section {
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+        .recipient-section.active {
+            display: block;
+        }
+
+        .recipient-options .radio-item {
+            display: inline-flex;
+            margin-right: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="sms-form-container">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="sms-header">
+        <h1>Envoyer un message</h1>
+    </div>
+
+    {{ form_start(form) }}
+
+    <div class="form-grid">
+        <div class="form-group">
+            {{ form_row(form.sender, {
+                'attr': {'class': 'form-select'},
+                'label_attr': {'class': 'form-label'}
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_row(form.smsType, {
+                'attr': {'class': 'form-select'},
+                'label_attr': {'class': 'form-label'}
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_row(form.timezone, {
+                'attr': {'class': 'form-select'},
+                'label_attr': {'class': 'form-label'}
+            }) }}
+        </div>
+    </div>
+
+
+    <div class="form-group recipient-choice">
+        {{ form_label(form.recipientOption, null, {'label_attr': {'class': 'form-label'}}) }}
+        <div class="radio-group">
+            {% for child in form.recipientOption %}
+                <div class="radio-item">
+                    {{ form_widget(child) }}
+                    {{ form_label(child) }}
+                </div>
+            {% endfor %}
+        </div>
+        {{ form_errors(form.recipientOption) }}
+    </div>
+
+
+    <div id="manual-numbers-section" class="recipient-section">
+        <div class="form-group">
+            {{ form_row(form.directNumbers, {
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Saisissez les numéros (un par ligne, ex: +229XXXXXXXXXX)',
+                    'rows': 5
+                },
+                'label_attr': {'class': 'form-label'},
+                'help': 'Séparez les numéros par des sauts de ligne. Ex: +2290197000001'
+            }) }}
+        </div>
+    </div>
+
+    <div id="group-selection-section" class="recipient-section">
+        <div class="form-group"> {# Ajoutez cette div pour conserver le style form-group #}
+            {# Assurez-vous que l'ID et la classe pour Select2 sont appliqués ici #}
+            {{ form_row(form.contactGroups, {
+                'attr': {'class': 'form-control select2-enable', 'id': 'sms_contact_groups_select'},
+                'label_attr': {'class': 'form-label'},
+                'help': 'Sélectionnez un groupe de contacts existants.'
+            }) }}
+        </div>
+    </div>
+
+    <div id="file-import-section" class="recipient-section">
+        <div class="form-group"> {# Ajoutez cette div pour conserver le style form-group #}
+            {{ form_row(form.importFile, {
+                'attr': {'class': 'form-control'},
+                'label_attr': {'class': 'form-label'},
+                'help': 'Téléchargez un fichier CSV ou TXT avec un numéro par ligne.'
+            }) }}
+        </div>
+    </div>
+
+    {# Section pour la date et heure d'envoi #}
+    <div class="form-grid">
+        <div class="form-group">
+            <label class="form-label">
+                Date et heure d'envoi
+                <i class="fas fa-info-circle info-icon" title="Laissez vide pour envoi immédiat"></i>
+            </label>
+            <div class="datetime-container">
+                {{ form_widget(form.scheduleAt, {
+                    'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Gardez vide pour l\'envoi instantané'
+                    }
+                }) }}
+                <button type="button" class="clear-datetime" onclick="this.previousElementSibling.value=''">×</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="message-section">
+        <div class="form-group">
+            {{ form_row(form.messageContent, {
+                'attr': {
+                    'class': 'form-control message-textarea',
+                    'placeholder': 'Tapez votre message...',
+                    'maxlength': 1600
+                },
+                'label_attr': {'class': 'form-label'}
+            }) }}
+            <div class="character-count">
+                <span id="char-count">0</span>/160 caractères
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <div class="preview-label">Aperçu du message à envoyer <span class="required">*</span></div>
+            <div class="message-preview" id="message-preview">
+                Votre message apparaîtra ici...
+            </div>
+        </div>
+    </div>
+
+
+    {{ form_end(form) }}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.querySelector('.message-textarea');
+    const charCountSpan = document.getElementById('char-count');
+    const messagePreview = document.getElementById('message-preview');
+
+    const smsTypeSelect = document.querySelector('select[name="sms_message_type_form[smsType]"]');
+
+
+    const FLASH_MAX_CHARS = 50;
+    const CLASSIC_MAX_CHARS = 200;
+    let currentMaxChars = CLASSIC_MAX_CHARS;
+
+
+    const recipientOptionRadios = document.querySelectorAll('input[name="sms_message_type_form[recipientOption]"]');
+    const manualNumbersSection = document.getElementById('manual-numbers-section');
+    const groupSelectionSection = document.getElementById('group-selection-section');
+    const fileImportSection = document.getElementById('file-import-section');
+
+
+    function updateMessage() {
+        let text = messageInput.value;
+        let currentLength = text.length;
+
+
+        if (currentLength > currentMaxChars) {
+            text = text.substring(0, currentMaxChars);
+            messageInput.value = text;
+            currentLength = currentMaxChars;
+        }
+
+        charCountSpan.textContent = currentLength;
+        messagePreview.textContent = text || 'Votre message apparaîtra ici...';
+
+
+        if (currentLength > currentMaxChars * 0.9) {
+            charCountSpan.style.color = '#dc3545';
+        } else if (currentLength > currentMaxChars * 0.7) {
+            charCountSpan.style.color = '#f59e0b';
+        } else {
+            charCountSpan.style.color = '#6b7280';
+        }
+
+
+        if (charCountSpan && charCountSpan.nextSibling) {
+            charCountSpan.nextSibling.textContent = `/${currentMaxChars} caractères`;
+        }
+    }
+
+
+    function determineCharacterLimit() {
+        if (smsTypeSelect) {
+            const selectedSmsType = smsTypeSelect.value;
+            if (selectedSmsType === 'flash') {
+                currentMaxChars = FLASH_MAX_CHARS;
+            } else { // 'classic'
+                currentMaxChars = CLASSIC_MAX_CHARS;
+            }
+            updateMessage();
+        }
+    }
+
+    if (messageInput) {
+        messageInput.addEventListener('input', updateMessage);
+
+    }
+
+
+    if (smsTypeSelect) {
+        smsTypeSelect.addEventListener('change', determineCharacterLimit);
+        determineCharacterLimit();
+    }
+
+    function toggleRecipientSections() {
+
+        const selectedOption = document.querySelector('input[name="sms_message_type_form[recipientOption]"]:checked')?.value;
+
+        // Masquer toutes les sections
+        manualNumbersSection.classList.remove('active');
+        groupSelectionSection.classList.remove('active');
+        fileImportSection.classList.remove('active');
+
+
+        if (selectedOption === 'manual') {
+            manualNumbersSection.classList.add('active');
+        } else if (selectedOption === 'group') {
+            groupSelectionSection.classList.add('active');
+
+            const smsContactGroupsSelect = document.getElementById('sms_contact_groups_select');
+            if (smsContactGroupsSelect && typeof $ !== 'undefined' && $.fn.select2 && !$(smsContactGroupsSelect).data('select2')) {
+                 $(smsContactGroupsSelect).select2({
+                    placeholder: 'Sélectionnez un ou plusieurs groupes',
+                    allowClear: true
+                 });
+             }
+        } else if (selectedOption === 'import') {
+            fileImportSection.classList.add('active');
+        }
+    }
+
+    recipientOptionRadios.forEach(radio => {
+        radio.addEventListener('change', toggleRecipientSections);
+    });
+
+
+    toggleRecipientSections();
+
+});
+</script>
+{% endblock %}

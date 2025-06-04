@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Groupe de contact - IsoCel{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Styles généraux pour le conteneur de formulaire */
+        .sms-form-container { /* Renommé pour une application plus générale si souhaité, sinon garder sms-form-container */
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Styles pour l'en-tête de la page */
+        .sms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .sms-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Styles pour les groupes de champs du formulaire */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        /* Styles pour les champs de saisie et les sélecteurs */
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            background-color: #fff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Styles pour les boutons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Conteneur pour les boutons d'action */
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end; /* Aligner les boutons à droite */
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Styles spécifiques pour les liens "Retour" et "Supprimer" en bas */
+        .bottom-links {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start; /* Aligner à gauche */
+        }
+
+        .bottom-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .bottom-links a:hover {
+            text-decoration: underline;
+        }
+
+        .bottom-links .delete-form {
+            display: inline; /* Pour que le bouton Supprimer reste en ligne avec les autres liens si nécessaire */
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="sms-form-container">
+        <div class="sms-header">
+            <h1>Modifier Groupe de contact</h1>
+        </div>
+
+        {# Le formulaire réel est inclus ici #}
+        {{ include('contact_group/_form.html.twig', {'button_label': 'Mettre à jour'}) }} {# J'ai changé le label en français #}
+
+        <div class="bottom-links">
+            <a href="{{ path('app_contact_group_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            {# Le formulaire de suppression doit être stylisé comme un bouton si possible #}
+            {{ include('contact_group/_delete_form.html.twig') }}
+        </div>
+    </div>
+{% endblock %}

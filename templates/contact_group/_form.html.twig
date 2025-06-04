@@ -1,0 +1,23 @@
+
+    {{ form_start(form) }}
+
+    <div style="margin-bottom: 20px;">
+        {{ form_label(form.name, 'Nom du groupe', {'label_attr': {'style': 'display: block; margin-bottom: 5px; font-weight: bold;'}}) }}
+        {{ form_widget(form.name, {'attr': {'style': 'width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        {{ form_label(form.contacts, 'Contacts', {'label_attr': {'style': 'display: block; margin-bottom: 5px; font-weight: bold;'}}) }}
+        {{ form_widget(form.contacts, {'attr': {'style': 'width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;'}}) }}
+        {{ form_errors(form.contacts) }}
+    </div>
+
+    <div style="text-align: center;">
+        <button type="submit" style="padding: 10px 20px; background-color: #333; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            Enregistrer
+        </button>
+    </div>
+
+{{ form_end(form) }}
+
