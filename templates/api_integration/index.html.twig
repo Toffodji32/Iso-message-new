@@ -1,0 +1,304 @@
+{# templates/api_integration/index.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Clé API - FasterMessage{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="h2 mb-4 text-center text-md-start">
+                    <i class="fas fa-key text-primary me-2"></i>
+                    Gestion de votre clé API
+                </h1>
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <div class="row g-4">
+                    {# Section d'information #}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-wrapper bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-info-circle text-primary fs-4"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">À quoi sert votre clé API ?</h5>
+                                </div>
+                                <p class="text-muted mb-3">
+                                    Utilisez votre clé API pour intégrer <strong>ISOMESSAGE</strong> directement sur votre plateforme et automatiser vos envois de messages.
+                                </p>
+                                <div class="bg-light rounded p-3">
+                                    <small class="text-muted">
+                                        <strong>Utilisations :</strong><br>
+                                        • Intégration dans vos applications<br>
+                                        • Envoi automatique de SMS<br>
+                                        • Gestion programmatique des messages
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Section clé API actuelle #}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-wrapper bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-key text-success fs-4"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Votre clé API</h5>
+                                </div>
+                                <p class="text-muted mb-3">Copiez votre clé d'authentification</p>
+                                <div class="api-key-container">
+                                    <div class="input-group">
+                                        <input type="text"
+                                               class="form-control font-monospace bg-light border-end-0"
+                                               value="{{ current_api_key }}"
+                                               readonly
+                                               id="apiKeyField">
+                                        <button class="btn btn-outline-primary"
+                                                type="button"
+                                                id="copyApiKeyButton"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Copier la clé">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted mt-2 d-block">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        Gardez cette clé confidentielle
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Section régénération #}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-warning border-2 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="icon-wrapper bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                                                <i class="fas fa-sync-alt text-warning fs-4"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="card-title mb-1">Régénérer votre clé API</h5>
+                                                <p class="text-muted mb-0">Action irréversible - Invalidera la clé actuelle</p>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-warning py-2 mb-0">
+                                            <small>
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                <strong>Attention :</strong> Toutes les applications utilisant l'ancienne clé cesseront de fonctionner.
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                        {{ form_start(form, {'attr': {'class': 'd-inline', 'onsubmit': 'return confirm("Êtes-vous sûr de vouloir régénérer votre clé API ? Cette action est irréversible.")'}}) }}
+                                            {{ form_widget(form.regenerate, {'attr': {'class': 'btn btn-warning btn-lg'}}) }}
+                                        {{ form_end(form) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Section documentation #}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card bg-primary bg-opacity-5 border-0">
+                            <div class="card-body p-4 text-center">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-book me-2"></i>
+                                    Besoin d'aide pour l'intégration ?
+                                </h6>
+                                <p class="text-muted mb-3">Consultez notre documentation pour apprendre à utiliser votre clé API</p>
+                                <a href="#" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    Voir la documentation
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser les tooltips Bootstrap
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Fonctionnalité de copie
+            const copyButton = document.getElementById('copyApiKeyButton');
+            const apiKeyField = document.getElementById('apiKeyField');
+
+            copyButton.addEventListener('click', function() {
+                apiKeyField.select();
+                apiKeyField.setSelectionRange(0, 99999);
+
+                navigator.clipboard.writeText(apiKeyField.value).then(function() {
+                    // Feedback visuel
+                    const originalIcon = copyButton.innerHTML;
+                    copyButton.innerHTML = '<i class="fas fa-check text-success"></i>';
+                    copyButton.classList.remove('btn-outline-primary');
+                    copyButton.classList.add('btn-success');
+
+                    // Afficher un toast ou une notification
+                    showToast('Clé API copiée avec succès !', 'success');
+
+                    // Restaurer l'état original après 2 secondes
+                    setTimeout(function() {
+                        copyButton.innerHTML = originalIcon;
+                        copyButton.classList.remove('btn-success');
+                        copyButton.classList.add('btn-outline-primary');
+                    }, 2000);
+                }).catch(function() {
+                    // Fallback pour les navigateurs plus anciens
+                    document.execCommand('copy');
+                    showToast('Clé API copiée !', 'success');
+                });
+            });
+
+            // Fonction pour afficher des notifications toast
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toast-container') || createToastContainer();
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center text-white bg-${type} border-0`;
+                toast.setAttribute('role', 'alert');
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+
+                toastContainer.appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+
+                // Supprimer le toast après qu'il soit caché
+                toast.addEventListener('hidden.bs.toast', function() {
+                    toast.remove();
+                });
+            }
+
+            function createToastContainer() {
+                const container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container position-fixed top-0 end-0 p-3';
+                container.style.zIndex = '1055';
+                document.body.appendChild(container);
+                return container;
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .api-key-container .form-control {
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .font-monospace {
+            font-family: 'Courier New', Courier, monospace !important;
+        }
+
+        .bg-opacity-5 {
+            background-color: rgba(var(--bs-primary-rgb), 0.05) !important;
+        }
+
+        .bg-opacity-10 {
+            background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .icon-wrapper {
+                width: 50px;
+                height: 50px;
+            }
+
+            .btn-lg {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Animation pour les alertes */
+        .alert {
+            animation: slideInDown 0.3s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+{% endblock %}

@@ -1,4 +1,4 @@
-{# templates/base.html.twig #}
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -51,7 +51,7 @@
             </div>
 
             <div class="nav-section">DÉVELOPPEUR & API</div>
-            <a href="#" class="nav-item {% if app.request.get('_route') == 'app_api_key' %}active{% endif %}">
+            <a href="{{ path('app_api_settings') }}" class="nav-item {% if app.request.get('_route') == 'app_api_key' %}active{% endif %}">
                 <span class="icon">🔧</span>
                 Intégration & clé API
             </a>
@@ -59,11 +59,10 @@
 
         <div class="main-content">
             <div class="header">
-                <div>{# Laissez vide si vous n'avez pas de contenu à gauche du header #}</div>
+                <div> </div>
 
-                {# Structure du menu déroulant utilisateur #}
+
                 <div class="user-info dropdown">
-                    {# Le lien/bouton qui déclenche le menu #}
                     <a href="#" class="dropdown-toggle d-flex align-items-center text-decoration-none text-dark" id="dropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span>{{ app.user ? app.user.fullName : 'Utilisateur' }}</span>
                         <div class="user-avatar ms-2">
@@ -71,31 +70,26 @@
                         </div>
                     </a>
 
-                    {# Le menu déroulant lui-même #}
+
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         {% if app.user %}
                             <li><h6 class="dropdown-header">{{ app.user.fullName }}</h6></li>
                             <li><hr class="dropdown-divider"></li>
                         {% endif %}
-                        {# Remplacez 'app_user_settings' par la route réelle de votre page de paramètres utilisateur #}
                         <li><a class="dropdown-item" href="#">Paramètres</a></li>
-                        {# Route standard de déconnexion de Symfony #}
                         <li><a class="dropdown-item" href="#">Déconnexion</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="content-area">
-                {# C'est le bloc où le contenu spécifique de chaque page sera inséré #}
                 {% block body %}{% endblock %}
             </div>
         </div>
     </div>
 
-    {# Liens vers Bootstrap JS (obligatoire pour le fonctionnement du dropdown-toggle) #}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    {# Votre JavaScript personnalisé #}
     <script src="{{ asset('js/isocel-app.js') }}"></script>
     {% block javascripts %}{% endblock %}
 </body>

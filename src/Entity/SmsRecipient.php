@@ -80,4 +80,17 @@ class SmsRecipient
 
         return $this;
     }
+
+    private ?\DateTimeInterface $sentAt = null;
+
+    public function getSentAt(): ?\DateTimeInterface
+       {
+        return $this->sentAt;
+        }
+
+    public function setSentAt(?\DateTimeInterface $sentAt): self
+       {
+          $this->sentAt = $sentAt;
+          return $this;
+            }
 }

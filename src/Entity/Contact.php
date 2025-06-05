@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
+// <<< NOUVEAU : SUPPRIMEZ LA LIGNE #[ORM\HasLifecycleCallbacks()]
 class Contact
 {
     #[ORM\Id]
@@ -39,6 +40,11 @@ class Contact
     #[ORM\OneToMany(targetEntity: SmsRecipient::class, mappedBy: 'contact')]
     private Collection $smsRecipients;
 
+    // <<< NOUVEAU : SUPPRIMEZ TOUT LE BLOC SUIVANT CONCERNANT createdAt
+    // #[ORM\Column(type: 'datetime_immutable', nullable: false)]
+    // private ?\DateTimeImmutable $createdAt = null;
+    // FIN DU BLOC À SUPPRIMER
+
     public function __construct()
     {
         $this->contactGroups = new ArrayCollection();
@@ -58,7 +64,6 @@ class Contact
     public function setPhoneNumber(string $phoneNumber): static
     {
         $this->phoneNumber = $phoneNumber;
-
         return $this;
     }
 
@@ -70,7 +75,6 @@ class Contact
     public function setFirstName(?string $firstName): static
     {
         $this->firstName = $firstName;
-
         return $this;
     }
 
@@ -82,7 +86,6 @@ class Contact
     public function setLastName(?string $lastName): static
     {
         $this->lastName = $lastName;
-
         return $this;
     }
 
@@ -94,7 +97,6 @@ class Contact
     public function setEmail(?string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -111,14 +113,12 @@ class Contact
         if (!$this->contactGroups->contains($contactGroup)) {
             $this->contactGroups->add($contactGroup);
         }
-
         return $this;
     }
 
     public function removeContactGroup(ContactGroup $contactGroup): static
     {
         $this->contactGroups->removeElement($contactGroup);
-
         return $this;
     }
 
@@ -136,7 +136,6 @@ class Contact
             $this->smsRecipients->add($smsRecipient);
             $smsRecipient->setContact($this);
         }
-
         return $this;
     }
 
@@ -148,7 +147,23 @@ class Contact
                 $smsRecipient->setContact(null);
             }
         }
-
         return $this;
     }
+
+    // <<< NOUVEAU : SUPPRIMEZ TOUT LE BLOC SUIVANT CONCERNANT les méthodes de createdAt
+    // public function getCreatedAt(): ?\DateTimeImmutable
+    // {
+    //     return $this->createdAt;
+    // }
+    // public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    // {
+    //     $this->createdAt = $createdAt;
+    //     return $this;
+    // }
+    // #[ORM\PrePersist]
+    // public function setCreatedAtValue(): void
+    // {
+    //     $this->createdAt = new \DateTimeImmutable();
+    // }
+    // FIN DU BLOC À SUPPRIMER
 }

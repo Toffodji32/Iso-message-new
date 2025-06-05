@@ -2,6 +2,149 @@
 
 {% block title %}Tableau de bord - IsoMessage{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Styles existants */
+        .dashboard-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .welcome-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-card h2 {
+            color: #4CAF50; /* Vert pour le titre */
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-card p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6; /* Bleu */
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6; /* Gris clair */
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        /* Les styles suivants pour les contacts récents ne sont plus nécessaires */
+        /* .recent-contacts-card { ... } */
+        /* .recent-contacts-card h3 { ... } */
+        /* .contact-list { ... } */
+        /* .contact-item { ... } */
+        /* .contact-item:last-child { ... } */
+        /* .contact-info { ... } */
+        /* .contact-date { ... } */
+        /* .no-contacts-message { ... } */
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="dashboard-content">
         <h1>Bienvenue sur IsoMessage !</h1>
@@ -28,12 +171,20 @@
                         <span class="stat-label">Total groupes :</span>
                         <span class="stat-value">{{ stats.total_groups ?? 0 }}</span>
                     </div>
-                    <div class="stat-item">
+                    {# NOUVEAU : La ligne pour les SMS envoyés (aujourd'hui) est maintenant commentée/supprimée #}
+                    {# <div class="stat-item">
                         <span class="stat-label">SMS envoyés (aujourd'hui) :</span>
                         <span class="stat-value">{{ stats.sms_sent_today ?? 0 }}</span>
-                    </div>
+                    </div> #}
                 </div>
             </div>
+
+            {# NOUVEAU : Toute la section pour les derniers contacts ajoutés est maintenant supprimée #}
+            {# Supprimez tout ce bloc div qui contenait "recent-contacts-card" #}
+
         </div>
+
+        {# Vous pouvez ajouter d'autres sections ici si nécessaire #}
+
     </div>
 {% endblock %}

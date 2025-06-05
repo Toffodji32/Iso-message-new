@@ -83,17 +83,17 @@ class SmsMessageTypeForm extends AbstractType
             ])
             ->add('contactGroups', EntityType::class, [
                 'class' => ContactGroup::class,
-                'choice_label' => 'name', // Affichera le nom du groupe
+                'choice_label' => 'name', 
                 'multiple' => true,
-                'expanded' => false, // Rendu en <select multiple>
-                'required' => false, // Rendu non requis ici
+                'expanded' => false,
+                'required' => false,
                 'label' => 'Sélectionnez des groupes de contacts existants',
-                // Supprimez 'attr' => ['style' => 'display:none;'] car la visibilité est gérée par JS
+
             ])
             ->add('importFile', FileType::class, [
                 'label' => 'Fichier de contacts (CSV, TXT)',
-                'mapped' => false, // Important : ce champ n'est pas directement mappé à une propriété de l'entité SMS
-                'required' => false, // Rendu non requis ici
+                'mapped' => false,
+                'required' => false,
                 'help' => 'Formats supportés : CSV, TXT. Un numéro par ligne.',
                 'attr' => ['class' => 'form-control'],
             ])

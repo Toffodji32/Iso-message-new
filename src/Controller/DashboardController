@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\ContactRepository; // NOUVEAU : Importez votre ContactRepository
+use App\Repository\ContactGroupRepository; // Si vous utilisez ContactGroupRepository pour les stats
+
+class DashboardController extends AbstractController
+{
+    /**
+     * @Route("/dashboard", name="app_dashboard")
+     */
+    public function index(
+        ContactRepository $contactRepository, // Injectez le ContactRepository
+        ContactGroupRepository $contactGroupRepository, // Injectez si utilisé pour les stats
+    ): Response {
+        // --- Récupération des statistiques existantes ---
+        $totalContacts = $contactRepository->count([]); // Compte tous les contacts
+        $totalGroups = $contactGroupRepository->count([]); // Compte tous les groupes
+
+
+        $stats = [
+            'total_contacts' => $totalContacts,
+            'total_groups' => $totalGroups,
+        ];
+        // --- Fin de la récupération des statistiques existantes ---
+
+
+        // NOUVEAU : Récupérer les 5 derniers contacts ajoutés
+        // Assurez-vous que votre entité Contact a une propriété 'createdAt' ou 'id' pour le tri
+        $recentContacts = $contactRepository->findBy(
+            [],           // Aucune condition spécifique
+            ['createdAt' => 'DESC'], // Triez par date de création décroissante (du plus récent au plus ancien)
+            5             // Limitez à 5 contacts
+        );
+
+        // Si 'createdAt' n'existe pas, vous pouvez utiliser 'id'
+        // $recentContacts = $contactRepository->findBy(
+        //     [],
+        //     ['id' => 'DESC'],
+        //     5
+        // );
+
+
+        return $this->render('dashboard/index.html.twig', [
+            'sms_balance' => 1000, // Remplacez par la logique réelle de solde SMS
+            'stats' => $stats,
+            'recent_contacts' => $recentContacts, // Passez les contacts récents à la vue
+        ]);
+    }
+}
