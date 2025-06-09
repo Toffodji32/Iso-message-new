@@ -64,16 +64,16 @@
 
                 <div class="user-info dropdown">
                     <a href="#" class="dropdown-toggle d-flex align-items-center text-decoration-none text-dark" id="dropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span>{{ app.user ? app.user.fullName : 'Utilisateur' }}</span>
+                        <span>{{ app.user ? app.user.email : 'Utilisateur' }}</span>
                         <div class="user-avatar ms-2">
-                            {{ app.user ? app.user.initials : 'U' }}
+                            {{ app.user ? app.user.email : 'U' }}
                         </div>
                     </a>
 
 
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         {% if app.user %}
-                            <li><h6 class="dropdown-header">{{ app.user.fullName }}</h6></li>
+                            <li><h6 class="dropdown-header">{{ app.user.email }}</h6></li>
                             <li><hr class="dropdown-divider"></li>
                         {% endif %}
                         <li><a class="dropdown-item" href="#">Paramètres</a></li>
