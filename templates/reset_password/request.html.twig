@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Réinitialisation du mot de passe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow p-4" style="max-width: 450px; width: 100%;">
+        <h2 class="text-center mb-4">Réinitialiser votre mot de passe</h2>
+
+        {% for flash_error in app.flashes('reset_password_error') %}
+            <div class="alert alert-danger" role="alert">
+                {{ flash_error }}
+            </div>
+        {% endfor %}
+
+        <p class="text-muted small mb-4">
+            Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+        </p>
+
+        {{ form_start(requestForm) }}
+
+            <div class="mb-3">
+                {{ form_label(requestForm.email, 'Adresse email', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(requestForm.email, {'attr': {'class': 'form-control', 'placeholder': 'exemple@email.com'}}) }}
+                {{ form_errors(requestForm.email) }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Envoyer le lien de réinitialisation</button>
+
+        {{ form_end(requestForm) }}
+
+        <div class="mt-4 text-center">
+            <a href="{{ path('app_login') }}">← Retour à la connexion</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
