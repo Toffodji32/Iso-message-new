@@ -2,31 +2,64 @@
 
 namespace App\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class ProfileController extends AbstractController
 {
     #[Route('/profile', name: 'app_profile')]
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $user = $this->getUser();
 
-        
-        $form = $this->createFormBuilder($user)
-            ->add('fullName', TextType::class, ['label' => 'Nom complet'])
-            ->add('phoneNumber', TextType::class, ['label' => 'Numéro de téléphone', 'required' => false])
-            ->add('save', SubmitType::class, ['label' => 'Enregistrer les modifications'])
-            ->getForm();
-
         return $this->render('profile/index.html.twig', [
             'user' => $user,
-            'form' => $form->createView(), // ⬅️ Tu dois ajouter cette ligne
+        ]);
+    }
+
+    #[Route('/profile/edit', name: 'app_profile_edit')]
+    public function edit(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw $this->createAccessDeniedException('Aucun utilisateur connecté.');
+        }
+
+        $form = $this->createFormBuilder($user)
+            ->add('fullName', TextType::class, [
+                'label' => 'Nom complet',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Votre nom complet']
+            ])
+            ->add('phoneNumber', TextType::class, [
+                'label' => 'Numéro de téléphone',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => '+229 97 12 34 56']
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Enregistrer les modifications',
+                'attr' => ['class' => 'btn btn-primary mt-3']
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Profil mis à jour avec succès.');
+
+            return $this->redirectToRoute('app_profile');
+        }
+
+        return $this->render('profile/edit.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user, // pour pouvoir afficher l’email en lecture seule
         ]);
     }
 }

@@ -11,7 +11,7 @@ use App\Repository\SmsLogRepository;      // Garder si utilisé pour sms_sent_to
 
 final class DashboardController extends AbstractController
 {
-    #[Route('/', name: 'app_dashboard')]
+    #[Route('/dashboard', name: 'app_dashboard')]
     public function index(
         ContactRepository $contactRepository,        // Garder si vous comptez toujours les contacts
         ?ContactGroupRepository $contactGroupRepository = null, // Garder si vous comptez toujours les groupes

@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .profile-edit-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.05);
+        }
+
+        .profile-edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-edit-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+
+        .form-control {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="profile-edit-container">
+
+    <div class="profile-edit-header">
+        <h2><i class=" me-2"></i> Modifier mon profil</h2>
+        
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+    {% endfor %}
+
+    {{ form_start(form) }}
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+    </div>
+
+
+    <div class="mb-3">
+        {{ form_label(form.fullName, 'Nom complet') }}
+        {{ form_widget(form.fullName, {'attr': {'class': 'form-control', 'placeholder': 'Votre nom complet'}}) }}
+        {{ form_errors(form.fullName) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.phoneNumber, 'Numéro de téléphone') }}
+        {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': '+229 97 12 34 56'}}) }}
+        {{ form_errors(form.phoneNumber) }}
+    </div>
+
+    <div class="text-end">
+        {{ form_widget(form.save) }}
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
