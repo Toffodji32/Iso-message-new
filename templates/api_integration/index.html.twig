@@ -2,15 +2,15 @@
 
 {% extends 'base.html.twig' %}
 
-{% block title %}Clé API - FasterMessage{% endblock %}
+{% block title %}Configuration API - IsoMessage{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
         <div class="row justify-content-center">
-            <div class="col-lg-10">
+            <div class="col-lg-12">
                 <h1 class="h2 mb-4 text-center text-md-start">
-                    <i class="fas fa-key text-primary me-2"></i>
-                    Gestion de votre clé API
+                    <i class="fas fa-cogs text-primary me-2"></i>
+                    Configuration des APIs
                 </h1>
 
                 {% for message in app.flashes('success') %}
@@ -27,32 +27,7 @@
                 {% endfor %}
 
                 <div class="row g-4">
-                    {# Section d'information #}
-                    <div class="col-lg-6">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="icon-wrapper bg-primary bg-opacity-10 rounded-circle p-3 me-3">
-                                        <i class="fas fa-info-circle text-primary fs-4"></i>
-                                    </div>
-                                    <h5 class="card-title mb-0">À quoi sert votre clé API ?</h5>
-                                </div>
-                                <p class="text-muted mb-3">
-                                    Utilisez votre clé API pour intégrer <strong>ISOMESSAGE</strong> directement sur votre plateforme et automatiser vos envois de messages.
-                                </p>
-                                <div class="bg-light rounded p-3">
-                                    <small class="text-muted">
-                                        <strong>Utilisations :</strong><br>
-                                        • Intégration dans vos applications<br>
-                                        • Envoi automatique de SMS<br>
-                                        • Gestion programmatique des messages
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {# Section clé API actuelle #}
+                    {# Section Votre clé API (pour vos clients) #}
                     <div class="col-lg-6">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body p-4">
@@ -62,7 +37,7 @@
                                     </div>
                                     <h5 class="card-title mb-0">Votre clé API</h5>
                                 </div>
-                                <p class="text-muted mb-3">Copiez votre clé d'authentification</p>
+                                <p class="text-muted mb-3">Pour vos clients - Intégration sur leurs plateformes</p>
                                 <div class="api-key-container">
                                     <div class="input-group">
                                         <input type="text"
@@ -70,7 +45,7 @@
                                                value="{{ current_api_key }}"
                                                readonly
                                                id="apiKeyField">
-                                        <button class="btn btn-outline-primary"
+                                        <button class="btn btn-outline-success"
                                                 type="button"
                                                 id="copyApiKeyButton"
                                                 data-bs-toggle="tooltip"
@@ -80,48 +55,94 @@
                                         </button>
                                     </div>
                                     <small class="text-muted mt-2 d-block">
-                                        <i class="fas fa-shield-alt me-1"></i>
-                                        Gardez cette clé confidentielle
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Clé à fournir à vos clients pour utiliser votre service
                                     </small>
                                 </div>
+
+                                {# Bouton régénération #}
+                                <div class="mt-3">
+                                    {{ form_start(form, {'attr': {'class': 'd-inline', 'onsubmit': 'return confirm("Êtes-vous sûr de vouloir régénérer votre clé API ? Cette action est irréversible.")'}}) }}
+                                        {{ form_widget(form.regenerate, {'attr': {'class': 'btn btn-outline-warning btn-sm'}}) }}
+                                    {{ form_end(form) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Section Configuration fournisseur SMS unique #}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-wrapper bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-satellite-dish text-primary fs-4"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Fournisseur SMS</h5>
+                                </div>
+                                <p class="text-muted mb-3">Configurez votre fournisseur SMS principal</p>
+
+                                <div class="provider-container">
+                                    {% if current_provider is defined and current_provider %}
+                                        {# Fournisseur configuré #}
+                                        <div class="provider-configured border rounded p-3 mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-{{ current_provider.icon|default('plug') }} text-{{ current_provider.status == 'active' ? 'success' : 'danger' }} me-3 fs-5"></i>
+                                                    <div>
+                                                        <strong class="d-block">{{ current_provider.name }}</strong>
+                                                        <small class="text-muted">{{ current_provider.description|default('Fournisseur SMS configuré') }}</small>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-{{ current_provider.status == 'active' ? 'success' : 'danger' }} me-2">
+                                                        {{ current_provider.status == 'active' ? 'Actif' : 'Inactif' }}
+                                                    </span>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="editProvider()">
+                                                        <i class="fas fa-edit"></i>
+                                                        Modifier
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {# Informations supplémentaires #}
+                                            <div class="mt-3 pt-3 border-top">
+                                                <div class="row text-center">
+                                                    <div class="col-4">
+                                                        <small class="text-muted d-block">Type</small>
+                                                        <strong class="small">{{ current_provider.type|upper }}</strong>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <small class="text-muted d-block">Configuré le</small>
+                                                        <strong class="small">{{ current_provider.created_at|date('d/m/Y') }}</strong>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <small class="text-muted d-block">Dernière utilisation</small>
+                                                        <strong class="small">{{ current_provider.last_used|date('d/m/Y')|default('Jamais') }}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {# Aucun fournisseur configuré #}
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-plug fs-1 mb-3 d-block opacity-50"></i>
+                                            <p class="mb-0">Aucun fournisseur configuré</p>
+                                            <small>Configurez votre fournisseur SMS pour commencer</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <button class="btn btn-primary w-100 mt-3" onclick="showProviderModal()">
+                                    <i class="fas fa-{{ current_provider is defined and current_provider ? 'edit' : 'plus' }} me-2"></i>
+                                    {{ current_provider is defined and current_provider ? 'Modifier le fournisseur' : 'Configurer le fournisseur' }}
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {# Section régénération #}
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card border-warning border-2 shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="icon-wrapper bg-warning bg-opacity-10 rounded-circle p-3 me-3">
-                                                <i class="fas fa-sync-alt text-warning fs-4"></i>
-                                            </div>
-                                            <div>
-                                                <h5 class="card-title mb-1">Régénérer votre clé API</h5>
-                                                <p class="text-muted mb-0">Action irréversible - Invalidera la clé actuelle</p>
-                                            </div>
-                                        </div>
-                                        <div class="alert alert-warning py-2 mb-0">
-                                            <small>
-                                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                                <strong>Attention :</strong> Toutes les applications utilisant l'ancienne clé cesseront de fonctionner.
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                        {{ form_start(form, {'attr': {'class': 'd-inline', 'onsubmit': 'return confirm("Êtes-vous sûr de vouloir régénérer votre clé API ? Cette action est irréversible.")'}}) }}
-                                            {{ form_widget(form.regenerate, {'attr': {'class': 'btn btn-warning btn-lg'}}) }}
-                                        {{ form_end(form) }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 {# Section documentation #}
                 <div class="row mt-4">
@@ -130,16 +151,124 @@
                             <div class="card-body p-4 text-center">
                                 <h6 class="text-primary mb-2">
                                     <i class="fas fa-book me-2"></i>
-                                    Besoin d'aide pour l'intégration ?
+                                    Documentation d'intégration
                                 </h6>
-                                <p class="text-muted mb-3">Consultez notre documentation pour apprendre à utiliser votre clé API</p>
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-external-link-alt me-2"></i>
-                                    Voir la documentation
-                                </a>
+                                <p class="text-muted mb-3">Guides pour configurer votre fournisseur SMS et utiliser notre API</p>
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a href="#" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-code me-2"></i>
+                                        Documentation API
+                                    </a>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-cog me-2"></i>
+                                        Guide configuration
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal pour configurer le fournisseur #}
+    <div class="modal fade" id="providerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-satellite-dish me-2"></i>
+                        Configurer votre fournisseur SMS
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="providerForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-building me-1"></i>
+                                    Fournisseur SMS
+                                </label>
+                                <select class="form-select" id="providerType" required>
+                                    <option value="">Sélectionnez votre fournisseur</option>
+                                    <option value="mtn">MTN</option>
+                                    <option value="celtis">Celtis</option>
+                                    <option value="custom">Autre (personnalisé)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-tag me-1"></i>
+                                    Nom d'affichage
+                                </label>
+                                <input type="text" class="form-control" id="providerName" placeholder="Ex: Mon fournisseur SMS">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-key me-1"></i>
+                                    Clé API <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control font-monospace" id="providerApiKey" placeholder="Votre clé API" required>
+                                <small class="text-muted">Cette clé sera utilisée pour authentifier les requêtes vers votre fournisseur</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>
+                                    Secret/Token
+                                </label>
+                                <input type="password" class="form-control font-monospace" id="providerSecret" placeholder="Secret ou token (optionnel)">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-link me-1"></i>
+                                    URL de base
+                                </label>
+                                <input type="url" class="form-control" id="providerBaseUrl" placeholder="https://api.exemple.com">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-comment me-1"></i>
+                                    Description
+                                </label>
+                                <textarea class="form-control" id="providerDescription" rows="2" placeholder="Description de votre configuration (optionnel)"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="providerActive" checked>
+                                    <label class="form-check-label" for="providerActive">
+                                        <i class="fas fa-power-off me-1"></i>
+                                        Activer ce fournisseur immédiatement
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Section test de connexion #}
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="mb-2">
+                                <i class="fas fa-vial me-2 text-info"></i>
+                                Test de connexion
+                            </h6>
+                            <p class="text-muted small mb-2">Testez votre configuration avant de l'enregistrer</p>
+                            <button type="button" class="btn btn-info btn-sm" onclick="testConnection()">
+                                <i class="fas fa-plug me-1"></i>
+                                Tester la connexion
+                            </button>
+                            <div id="testResult" class="mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        Annuler
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveProvider()">
+                        <i class="fas fa-save me-2"></i>
+                        Enregistrer la configuration
+                    </button>
                 </div>
             </div>
         </div>
@@ -156,69 +285,170 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            // Fonctionnalité de copie
+            // Fonctionnalité de copie de la clé API
             const copyButton = document.getElementById('copyApiKeyButton');
             const apiKeyField = document.getElementById('apiKeyField');
 
-            copyButton.addEventListener('click', function() {
-                apiKeyField.select();
-                apiKeyField.setSelectionRange(0, 99999);
+            if (copyButton && apiKeyField) {
+                copyButton.addEventListener('click', function() {
+                    apiKeyField.select();
+                    apiKeyField.setSelectionRange(0, 99999);
 
-                navigator.clipboard.writeText(apiKeyField.value).then(function() {
-                    // Feedback visuel
-                    const originalIcon = copyButton.innerHTML;
-                    copyButton.innerHTML = '<i class="fas fa-check text-success"></i>';
-                    copyButton.classList.remove('btn-outline-primary');
-                    copyButton.classList.add('btn-success');
+                    navigator.clipboard.writeText(apiKeyField.value).then(function() {
+                        const originalIcon = copyButton.innerHTML;
+                        copyButton.innerHTML = '<i class="fas fa-check text-success"></i>';
+                        copyButton.classList.remove('btn-outline-success');
+                        copyButton.classList.add('btn-success');
 
-                    // Afficher un toast ou une notification
-                    showToast('Clé API copiée avec succès !', 'success');
+                        showToast('Clé API copiée avec succès !', 'success');
 
-                    // Restaurer l'état original après 2 secondes
-                    setTimeout(function() {
-                        copyButton.innerHTML = originalIcon;
-                        copyButton.classList.remove('btn-success');
-                        copyButton.classList.add('btn-outline-primary');
-                    }, 2000);
-                }).catch(function() {
-                    // Fallback pour les navigateurs plus anciens
-                    document.execCommand('copy');
-                    showToast('Clé API copiée !', 'success');
+                        setTimeout(function() {
+                            copyButton.innerHTML = originalIcon;
+                            copyButton.classList.remove('btn-success');
+                            copyButton.classList.add('btn-outline-success');
+                        }, 2000);
+                    }).catch(function() {
+                        document.execCommand('copy');
+                        showToast('Clé API copiée !', 'success');
+                    });
                 });
+            }
+
+            // Auto-remplissage du nom lors de la sélection du type
+            document.getElementById('providerType').addEventListener('change', function() {
+                const type = this.value;
+                const nameField = document.getElementById('providerName');
+                const baseUrlField = document.getElementById('providerBaseUrl');
+
+                const providers = {
+                    'twilio': { name: 'Twilio', url: 'https://api.twilio.com' },
+                    'orange': { name: 'Orange API', url: 'https://api.orange.com' },
+                    'nexmo': { name: 'Nexmo/Vonage', url: 'https://rest.nexmo.com' },
+                    'messagebird': { name: 'MessageBird', url: 'https://rest.messagebird.com' }
+                };
+
+                if (providers[type]) {
+                    nameField.value = providers[type].name;
+                    baseUrlField.value = providers[type].url;
+                } else if (type === 'custom') {
+                    nameField.value = '';
+                    baseUrlField.value = '';
+                }
             });
 
-            // Fonction pour afficher des notifications toast
-            function showToast(message, type = 'info') {
-                const toastContainer = document.getElementById('toast-container') || createToastContainer();
-                const toast = document.createElement('div');
-                toast.className = `toast align-items-center text-white bg-${type} border-0`;
-                toast.setAttribute('role', 'alert');
-                toast.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>
-                `;
-
-                toastContainer.appendChild(toast);
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-
-                // Supprimer le toast après qu'il soit caché
-                toast.addEventListener('hidden.bs.toast', function() {
-                    toast.remove();
+            // Sélection rapide des fournisseurs
+            document.querySelectorAll('.provider-card[data-provider]').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    const provider = this.getAttribute('data-provider');
+                    showProviderModal();
+                    setTimeout(function() {
+                        document.getElementById('providerType').value = provider;
+                        document.getElementById('providerType').dispatchEvent(new Event('change'));
+                    }, 300);
                 });
+            });
+        });
+
+        // Fonction pour afficher le modal de configuration
+        function showProviderModal() {
+            document.getElementById('providerForm').reset();
+            document.getElementById('testResult').innerHTML = '';
+            const modal = new bootstrap.Modal(document.getElementById('providerModal'));
+            modal.show();
+        }
+
+        // Fonction pour éditer le fournisseur actuel
+        function editProvider() {
+            showProviderModal();
+            // Ici vous récupéreriez les données du fournisseur actuel pour pré-remplir le formulaire
+            showToast('Chargement de la configuration...', 'info');
+        }
+
+        // Fonction pour tester la connexion
+        function testConnection() {
+            const apiKey = document.getElementById('providerApiKey').value;
+            const providerType = document.getElementById('providerType').value;
+            const testResult = document.getElementById('testResult');
+
+            if (!apiKey || !providerType) {
+                testResult.innerHTML = '<div class="alert alert-warning alert-sm mb-0"><i class="fas fa-exclamation-triangle me-1"></i> Veuillez remplir la clé API et sélectionner un fournisseur</div>';
+                return;
             }
 
-            function createToastContainer() {
-                const container = document.createElement('div');
-                container.id = 'toast-container';
-                container.className = 'toast-container position-fixed top-0 end-0 p-3';
-                container.style.zIndex = '1055';
-                document.body.appendChild(container);
-                return container;
+            testResult.innerHTML = '<div class="alert alert-info alert-sm mb-0"><i class="fas fa-spinner fa-spin me-1"></i> Test en cours...</div>';
+
+            // Simulation d'un test (remplacez par votre logique AJAX)
+            setTimeout(function() {
+                const success = Math.random() > 0.3; // 70% de chance de succès pour la démo
+                if (success) {
+                    testResult.innerHTML = '<div class="alert alert-success alert-sm mb-0"><i class="fas fa-check-circle me-1"></i> Connexion réussie ! Votre configuration est valide.</div>';
+                } else {
+                    testResult.innerHTML = '<div class="alert alert-danger alert-sm mb-0"><i class="fas fa-times-circle me-1"></i> Échec de la connexion. Vérifiez vos paramètres.</div>';
+                }
+            }, 2000);
+        }
+
+        // Fonction pour sauvegarder le fournisseur
+        function saveProvider() {
+            const form = document.getElementById('providerForm');
+            const formData = {
+                type: document.getElementById('providerType').value,
+                name: document.getElementById('providerName').value,
+                apiKey: document.getElementById('providerApiKey').value,
+                secret: document.getElementById('providerSecret').value,
+                baseUrl: document.getElementById('providerBaseUrl').value,
+                description: document.getElementById('providerDescription').value,
+                active: document.getElementById('providerActive').checked
+            };
+
+            if (!formData.type || !formData.apiKey) {
+                showToast('Veuillez remplir les champs obligatoires', 'error');
+                return;
             }
-        });
+
+            // Ici vous feriez un appel AJAX pour sauvegarder
+            showToast('Configuration sauvegardée avec succès !', 'success');
+
+            // Fermer le modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('providerModal'));
+            modal.hide();
+
+            // Simuler le rechargement de la page pour voir les changements
+            setTimeout(function() {
+                showToast('Rechargement de la configuration...', 'info');
+            }, 1000);
+        }
+
+        // Fonction pour afficher des notifications toast
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '1055';
+            document.body.appendChild(container);
+            return container;
+        }
     </script>
 {% endblock %}
 
@@ -247,6 +477,28 @@
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
         }
 
+        .provider-configured {
+            transition: all 0.2s ease-in-out;
+            background-color: rgba(40, 167, 69, 0.05);
+            border-color: rgba(40, 167, 69, 0.2) !important;
+        }
+
+        .provider-configured:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .provider-card {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .provider-card:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+            border-color: var(--bs-primary) !important;
+            transform: translateY(-2px);
+        }
+
         .btn {
             transition: all 0.2s ease-in-out;
         }
@@ -261,6 +513,11 @@
 
         .bg-opacity-10 {
             background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+        }
+
+        .alert-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
         }
 
         /* Responsive adjustments */
@@ -279,9 +536,8 @@
                 height: 50px;
             }
 
-            .btn-lg {
-                padding: 0.5rem 1rem;
-                font-size: 1rem;
+            .provider-card {
+                margin-bottom: 1rem;
             }
         }
 
@@ -299,6 +555,20 @@
                 transform: translateY(0);
                 opacity: 1;
             }
+        }
+
+        .modal-content {
+            border: none;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+        }
+
+        /* Styling pour le fournisseur configuré */
+        .provider-configured .badge {
+            font-size: 0.75em;
+        }
+
+        .provider-configured .border-top {
+            border-color: rgba(40, 167, 69, 0.2) !important;
         }
     </style>
 {% endblock %}

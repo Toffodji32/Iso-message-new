@@ -45,6 +45,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $apiKey = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $fullName = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $phoneNumber = null;
+
     public function __construct()
     {
         $this->smsMessages = new ArrayCollection();
@@ -161,6 +167,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setApiKey(?string $apiKey): static
     {
         $this->apiKey = $apiKey;
+
+        return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(string $fullName): static
+    {
+        $this->fullName = $fullName;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }

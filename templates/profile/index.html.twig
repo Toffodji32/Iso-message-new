@@ -1,0 +1,197 @@
+{# templates/profile/index.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Paramètres du profil{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {# Assurez-vous d'avoir Font Awesome pour les icônes #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Styles généraux pour le corps */
+        body {
+            background-color: #f0f2f5; /* Un gris très clair pour un fond doux */
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh; /* S'assure que le body prend au moins toute la hauteur de la fenêtre */
+            display: flex; /* Utilise flexbox pour centrer le contenu verticalement */
+            align-items: center; /* Centre le contenu verticalement */
+            justify-content: center; /* Centre le contenu horizontalement */
+        }
+
+        /* Conteneur principal de la carte du formulaire */
+        .profile-card {
+            width: 100%; /* S'assure que la carte prend la largeur disponible dans sa colonne */
+            max-width: 600px; /* Limite la largeur maximale pour ne pas être trop étirée sur de grands écrans */
+            border-radius: 12px; /* Coins plus arrondis */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Ombre plus prononcée mais douce */
+            border: none; /* Supprime la bordure par défaut de la carte Bootstrap */
+            overflow: hidden; /* Assure que le border-radius s'applique bien au contenu */
+            margin: 30px auto; /* Centre la carte et ajoute des marges haut/bas */
+        }
+
+        /* En-tête de la carte */
+        .profile-card-header {
+            background-color:rgb(36, 3, 121); /* Couleur primaire de Bootstrap */
+            color: #ffffff; /* Texte blanc */
+            padding: 25px 30px; /* Plus de padding */
+            text-align: center;
+            font-size: 1.8rem; /* Taille de police plus grande pour le titre */
+            font-weight: 600;
+            border-bottom: none; /* Pas de bordure en bas de l'en-tête */
+            background-image: linear-gradient(135deg,rgb(8, 3, 103) 0%, #0056b3 100%); /* Dégradé subtil */
+        }
+
+        /* Corps de la carte */
+        .profile-card-body {
+            padding: 40px; /* Plus de padding pour le contenu */
+        }
+
+        /* Labels de formulaire */
+        .form-label {
+            font-weight: 600; /* Texte plus gras */
+            color: #495057; /* Couleur de texte plus foncée */
+            margin-bottom: 8px; /* Plus d'espace sous le label */
+            display: block; /* S'assure que le label prend toute la largeur */
+            font-size: 0.95rem;
+        }
+
+        /* Champs de formulaire */
+        .form-control {
+            border-radius: 8px; /* Coins arrondis pour les inputs */
+            padding: 12px 15px; /* Plus de padding interne */
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease; /* Transition douce pour le focus */
+        }
+
+        .form-control:focus {
+            border-color:rgb(43, 1, 156); /* Bordure bleue au focus */
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Ombre légère au focus */
+            background-color: #e9f5ff; /* Légère couleur de fond au focus */
+        }
+
+        /* Champs désactivés/en lecture seule */
+        .form-control[readonly], .form-control:disabled {
+            background-color: #e9ecef; /* Fond gris clair pour les champs non éditables */
+            opacity: 0.9;
+            cursor: not-allowed;
+        }
+
+        /* Bouton de soumission */
+        .btn-primary {
+            background-color: #28a745; /* Un vert attrayant pour le bouton d'enregistrement */
+            border-color: #28a745;
+            padding: 12px 25px;
+            font-size: 1.1rem; /* Texte plus grand pour le bouton */
+            font-weight: 600;
+            border-radius: 8px; /* Coins arrondis */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transitions douces */
+            display: flex; /* Utilise flexbox pour centrer le contenu */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838; /* Vert plus foncé au survol */
+            border-color: #1e7e34;
+            transform: translateY(-2px); /* Léger soulèvement au survol */
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); /* Ombre verte au survol */
+        }
+
+        .btn-primary i {
+            margin-right: 10px; /* Espace entre l'icône et le texte */
+        }
+
+        /* Alertes de succès */
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px; /* Plus d'espace en dessous */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .alert-success .btn-close {
+            color: #155724; /* Couleur du bouton de fermeture */
+            opacity: 0.8;
+        }
+        .alert-success .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* Espacement des éléments du formulaire */
+        .mb-3 {
+            margin-bottom: 25px !important; /* Augmente l'espace entre les champs */
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+{# Le conteneur "container" de Bootstrap aide à centrer et limiter la largeur #}
+<div class="container">
+    {# Utilisez une colonne plus large pour le formulaire, par exemple col-md-7 ou col-lg-6 #}
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card profile-card">
+                <div class="profile-card-header">
+                    Paramètres du compte
+                </div>
+                <div class="card-body profile-card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                        <div class="mb-3">
+                            <label for="user_email" class="form-label">Email</label>
+
+                            <input type="email" id="user_email" class="form-control" value="{{ user.email }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.fullName, 'Nom complet') }}
+                            {{ form_widget(form.fullName, {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Saisissez votre nom et prénom',
+                                    'aria-describedby': 'fullNameHelp'
+                                }
+                            }) }}
+                            <div id="fullNameHelp" class="form-text text-muted">
+                                Votre nom complet tel qu'il apparaîtra.
+                            </div>
+                            {{ form_errors(form.fullName) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.phoneNumber, 'Numéro de téléphone') }}
+                            {{ form_widget(form.phoneNumber, {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Ex: +229 97 12 34 56',
+                                    'aria-describedby': 'phoneNumberHelp'
+                                }
+                            }) }}
+                            <div id="phoneNumberHelp" class="form-text text-muted">
+                                Utilisé pour les notifications importantes. Format international recommandé.
+                            </div>
+                            {{ form_errors(form.phoneNumber) }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-4">
+                            <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                        </button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

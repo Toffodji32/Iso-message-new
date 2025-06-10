@@ -46,8 +46,6 @@
 
             <div class="sub-nav" {% if app.request.get('_route') starts with 'app_sms' %}style="display: block;"{% endif %}>
                 <a href="{{ path('app_send_sms') }}" class="sub-nav-item {% if app.request.get('_route') == 'app_send_sms' %}active{% endif %}">Messages</a>
-                <a href="#" class="sub-nav-item {% if app.request.get('_route') == 'sms_campaigns' %}active{% endif %}">Campagnes</a>
-                <a href="#" class="sub-nav-item {% if app.request.get('_route') == 'sms_alerts' %}active{% endif %}">Alertes</a>
             </div>
 
             <div class="nav-section">DÉVELOPPEUR & API</div>
@@ -57,34 +55,40 @@
             </a>
         </div>
 
-        <div class="main-content">
-            <div class="header">
-                <div> </div>
 
 
-                <div class="user-info dropdown">
-                    <a href="#" class="dropdown-toggle d-flex align-items-center text-decoration-none text-dark" id="dropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span>{{ app.user ? app.user.email : 'Utilisateur' }}</span>
-                        <div class="user-avatar ms-2">
-                            {{ app.user ? app.user.email : 'U' }}
-                        </div>
-                    </a>
+    <div class="main-content">
+    <div class="header">
+        <div></div>
 
+        <div class="user-info dropdown">
+            <a href="#" class="dropdown-toggle d-flex align-items-center text-decoration-none text-dark" id="dropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="d-none d-md-inline">{{ app.user ? app.user.email : 'Utilisateur' }}</span>
+                <div class="user-avatar ms-2 rounded-circle d-flex align-items-center justify-content-center">
+                    {% if app.user %}
 
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
-                        {% if app.user %}
-                            <li><h6 class="dropdown-header">{{ app.user.email }}</h6></li>
-                            <li><hr class="dropdown-divider"></li>
-                        {% endif %}
-                        <li><a class="dropdown-item" href="#">Paramètres</a></li>
-                        <li><a class="dropdown-item" href="{{ path('app_logout')}}">Déconnexion</a></li>
-                    </ul>
+                        {{ app.user.email|slice(0, 1)|upper }}
+                    {% else %}
+                        U
+                    {% endif %}
                 </div>
-            </div>
+            </a>
 
-            <div class="content-area">
-                {% block body %}{% endblock %}
-            </div>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                {% if app.user %}
+                    <li><h6 class="dropdown-header">{{ app.user.email }}</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{{ path('app_profile') }}">Paramètres</a></li>
+                <li><a class="dropdown-item" href="{{ path('app_logout')}}">Déconnexion</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-area">
+        {% block body %}{% endblock %}
+    </div>
+</div>
         </div>
     </div>
 
