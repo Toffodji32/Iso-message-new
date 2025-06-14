@@ -5,7 +5,11 @@
 {% block body %}
     <h1>Modifier Contact</h1>
 
-    {{ include('contact/_form.html.twig', {'button_label': 'Update'}) }}
+    {{ include('contact/_form.html.twig', {
+        form: form,
+        button_label: 'Modifier',
+        contact: contact
+    }) }}
 
     <a href="{{ path('app_contact_index') }}">Retour</a>
 

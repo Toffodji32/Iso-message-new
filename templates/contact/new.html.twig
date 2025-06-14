@@ -1,51 +1,39 @@
-{% extends 'base.html.twig' %}
+{{ form_start(form, {'attr': {'class': 'p-3'}}) }}
 
-{% block title %}Nouveau contact{% endblock %}
-{% block header_title %}Carnet d'adresses > Nouveau contact{% endblock %}
+<div class="mb-3">
+    {{ form_label(form.phoneNumber, 'Numéro de téléphone', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
+    {{ form_errors(form.phoneNumber) }}
+</div>
 
-{% block body %}
+<div class="mb-3">
+    {{ form_label(form.firstName, 'Prénom', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+    {{ form_errors(form.firstName) }}
+</div>
 
-      <h1 style="margin-bottom: 20px;">Ajouter un nouveau contact</h1>
+<div class="mb-3">
+    {{ form_label(form.lastName, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+    {{ form_errors(form.lastName) }}
+</div>
 
-     <div style="margin-top: 20px;">
-    <a href="{{ path('app_contact_index') }}"
-       style="
-           display: inline-block;
-           background-color: #e0e0e0;
-           color: #333;
-           padding: 10px 18px;
-           border-radius: 6px;
-           text-decoration: none;
-           font-weight: bold;
-           transition: background-color 0.3s, color 0.3s;"
-       onmouseover="this.style.backgroundColor='#d0d0d0'; this.style.color='#000';"
-       onmouseout="this.style.backgroundColor='#e0e0e0'; this.style.color='#333';"
-    >
-        ← Retour
-    </a>
-    </div>
+<div class="mb-3">
+    {{ form_label(form.email, 'Adresse email', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+    {{ form_errors(form.email) }}
+</div>
 
+<div class="mb-3">
+    {{ form_label(form.contactGroups, 'Groupes de contacts', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.contactGroups, {'attr': {'class': 'form-select'}}) }}
+    {{ form_errors(form.contactGroups) }}
+</div>
 
-    <div>
-        {{ form_start(form, {'attr': {'class': 'contact-form'}}) }}
+<div class="d-grid gap-2">
+    <button type="submit" class="btn btn-primary">
+        {{ button_label|default('Enregistrer') }}
+    </button>
+</div>
 
-        {% for field in form %}
-            {% if field.vars.name not in ['_token'] %}
-                <div class="form-group" style="margin-bottom: 15px;">
-                    {{ form_label(field, null, {'label_attr': {'style': 'font-weight: bold;'}}) }}
-                    {{ form_widget(field, {'attr': {'class': 'form-control', 'style': 'width: 100%; padding: 8px;'}}) }}
-                    {{ form_errors(field) }}
-                </div>
-            {% endif %}
-        {% endfor %}
-
-        <button type="submit" style="padding: 10px 20px; background-color: #007BFF; color: white; border: none; border-radius: 4px;">
-            Enregistrer
-        </button>
-
-        {{ form_end(form) }}
-    </div>
-
-
-
-{% endblock %}
+{{ form_end(form) }}

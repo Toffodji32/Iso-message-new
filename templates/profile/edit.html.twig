@@ -63,8 +63,7 @@
 <div class="profile-edit-container">
 
     <div class="profile-edit-header">
-        <h2><i class=" me-2"></i> Modifier mon profil</h2>
-        
+        <h2><i class=""></i> Modifier mon profil</h2>
     </div>
 
     {% for message in app.flashes('success') %}
@@ -77,10 +76,10 @@
     {{ form_start(form) }}
 
     <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+        {{ form_label(form.email, 'Adresse email') }}
+        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'email@example.com'}}) }}
+        {{ form_errors(form.email) }}
     </div>
-
 
     <div class="mb-3">
         {{ form_label(form.fullName, 'Nom complet') }}

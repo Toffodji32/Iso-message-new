@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique des SMS{% endblock %}
+
+{% block body %}
+<h1>Historique des SMS</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Contenu</th>
+            <th>Statut</th>
+            <th>Nombre de destinataires</th>
+            <th>Détails</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for message in messages %}
+            <tr>
+                <td>{{ message.createdAt ? message.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                <td>{{ message.messageContent|length > 50 ? message.messageContent|slice(0, 50) ~ '...' : message.messageContent }}</td>
+                <td>{{ message.status }}</td>
+                <td>{{ message.smsRecipients|length }}</td>
+                <td>
+                    <a href="{{ path('app_sms_history_detail', {id: message.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Aucun SMS envoyé.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

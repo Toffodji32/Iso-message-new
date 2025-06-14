@@ -1,28 +1,9 @@
-{% extends 'base.html.twig' %}
 
-{% block title %}Créer un Groupe de Contacts{% endblock %}
 
-{% block body %}
     <div style="max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
-        <h1 style="text-align: center; color: #333; margin-bottom: 30px;">📁 Nouveau Groupe de Contacts</h1>
-
+        
         {{ include('contact_group/_form.html.twig') }}
 
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="{{ path('app_contact_group_index') }}"
-               style="
-                   display: inline-block;
-                   padding: 10px 16px;
-                   background-color: #f0f0f0;
-                   color: #333;
-                   border-radius: 6px;
-                   text-decoration: none;
-                   font-weight: bold;
-                   transition: background-color 0.3s ease;"
-               onmouseover="this.style.backgroundColor='#e0e0e0';"
-               onmouseout="this.style.backgroundColor='#f0f0f0';">
-                ← Retour à la liste
-            </a>
-        </div>
+        
     </div>
-{% endblock %}
+

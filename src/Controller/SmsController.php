@@ -6,7 +6,7 @@ use App\Form\SmsMessageTypeForm;
 use App\Entity\Contact;
 use App\Entity\ContactGroup;
 use App\Entity\SmsMessage;
-use App\Entity\SmsRecipient; 
+use App\Entity\SmsRecipient;
 use App\Service\SmsSender;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

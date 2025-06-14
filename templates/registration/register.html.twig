@@ -54,11 +54,7 @@
                 {{ form_errors(registrationForm.plainPassword) }}
             </div>
 
-            <div class="mb-3 form-check">
-                {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-                {{ form_label(registrationForm.agreeTerms, "J'accepte les termes", {'label_attr': {'class': 'form-check-label'}}) }}
-                {{ form_errors(registrationForm.agreeTerms) }}
-            </div>
+            
 
             <button type="submit" class="btn btn-primary w-100">M'inscrire</button>
 

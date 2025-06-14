@@ -2,35 +2,64 @@
 
 {% block title %}Groupes de Contacts - IsoMessage{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Aligne le titre de la colonne Actions à droite */
+        th.actions-header {
+            text-align: right;
+        }
+
+        /* Aligne les boutons dans la cellule à droite et horizontalement */
+        td.actions-cell {
+            text-align: right;
+        }
+
+        td.actions-cell .btn {
+            margin-left: 5px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="tabs">
-        <a href="{{ path('app_contact_index') }}" class="tab {{ app.request.get('_route') == 'app_contact_index' ? 'active' : '' }}">MES CONTACTS</a>
-        <a href="{{ path('app_contact_group_index') }}" class="tab {{ app.request.get('_route') == 'app_contact_group_index' ? 'active' : '' }}">GROUPE DE CONTACTS</a>
+        <h6>GROUPE DE CONTACTS</h6>
     </div>
 
     <div class="controls">
         <div class="controls-right">
-            <a href="{{ path('app_contact_group_new') }}" class="btn btn-primary">+ Ajouter un groupe</a>
+            <button id="add-group-btn" class="btn btn-primary">+ Ajouter un groupe</button>
         </div>
     </div>
 
-    <div class="table-container">
-        <table class="table">
+    <div class="table-container mt-4">
+        
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Nom du Groupe</th>
-                    <th>Actions</th>
+                    <th class="actions-header">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for group in contact_groups %}
                     <tr>
                         <td>{{ group.name }}</td>
-                        <td>
-                            <a href="{{ path('app_contact_group_edit', {id: group.id}) }}" class="btn btn-sm">✏️ Modifier</a>
-                            <form method="POST" action="{{ path('app_contact_group_delete', {id: group.id}) }}" style="display: inline-block;" onsubmit="return confirm('Supprimer ce groupe ?');">
+                        <td class="actions-cell">
+                            <a href="{{ path('app_contact_group_edit', {id: group.id}) }}"
+                               class="btn btn-warning btn-sm edit-group-btn"
+                               data-id="{{ group.id }}"
+                               title="Modifier">
+                                <i class="fas fa-edit"></i> 
+                            </a>
+
+                            <form method="post" action="{{ path('app_contact_group_delete', {id: group.id}) }}"
+                                  onsubmit="return confirm('Supprimer ce groupe ?');"
+                                  style="display: inline-block;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ group.id) }}">
-                                <button type="submit" class="btn btn-sm btn-danger">🗑 Supprimer</button>
+                                <button class="btn btn-danger btn-sm" title="Supprimer">
+                                    <i class="fas fa-trash"></i> 
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -42,4 +71,89 @@
             </tbody>
         </table>
     </div>
+
+    {# MODALE Bootstrap pour créer/modifier #}
+    <div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="groupModalLabel">Groupe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body" id="groupModalBody">
+                    <!-- Le formulaire AJAX sera injecté ici -->
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = new bootstrap.Modal(document.getElementById('groupModal'));
+            const modalBody = document.getElementById('groupModalBody');
+            const modalTitle = document.getElementById('groupModalLabel');
+
+            // Fonction pour rafraîchir la page
+            function refreshPage() {
+                location.reload(); // 💡 Tu peux remplacer cela par une requête AJAX si tu veux éviter un reload complet
+            }
+
+            // Ajout d'un groupe
+            document.getElementById('add-group-btn').addEventListener('click', function () {
+                fetch('{{ path("app_contact_group_new") }}')
+                    .then(response => response.text())
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        modalTitle.innerText = "Ajouter un groupe";
+                        modal.show();
+                        bindFormSubmit();
+                    });
+            });
+
+            // Édition d'un groupe
+            document.querySelectorAll('.edit-group-btn').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            modalBody.innerHTML = html;
+                            modalTitle.innerText = "Modifier le groupe";
+                            modal.show();
+                            bindFormSubmit();
+                        });
+                });
+            });
+
+            // Fonction qui gère la soumission AJAX
+            function bindFormSubmit() {
+                const form = modalBody.querySelector('form');
+                if (!form) return;
+
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: form.method,
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            modal.hide();
+                            refreshPage(); // 👈 C'est ici qu'on appelle notre fonction de rafraîchissement
+                        } else {
+                            modalBody.innerHTML = data.form || "Une erreur s'est produite.";
+                            bindFormSubmit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 {% endblock %}

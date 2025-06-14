@@ -62,29 +62,42 @@
         .btn-primary:hover {
             background-color: #0056b3;
         }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <section class="profile-page">
+    {% if user %}
+        <div class="header-with-button">
+            <div class="profile-header">Détails du compte</div>
+            <a href="{{ path('app_profile_edit') }}" class="btn-primary">
+                <i class="fas fa-edit me-2"></i> Modifier
+            </a>
+        </div>
 
-    <div class="header-with-button">
-        <div class="profile-header">Détails du compte</div>
-        <a href="{{ path('app_profile_edit')}}" class="btn-primary">
-            <i class="fas fa-edit me-2"></i> Modifier
-        </a>
-    </div>
+        <div class="form-section">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ user.email }}</div>
 
-    <div class="form-section">
-        <div class="info-label">Email</div>
-        <div class="info-value">{{ user.email }}</div>
+            <div class="info-label">Nom complet</div>
+            <div class="info-value">{{ user.fullName }}</div>
 
-        <div class="info-label">Nom complet</div>
-        <div class="info-value">{{ user.fullName }}</div>
-
-        <div class="info-label">Numéro de téléphone</div>
-        <div class="info-value">{{ user.phoneNumber }}</div>
-    </div>
-
+            <div class="info-label">Numéro de téléphone</div>
+            <div class="info-value">{{ user.phoneNumber }}</div>
+        </div>
+    {% else %}
+        <div class="alert-warning">
+            Aucun utilisateur connecté. Veuillez vous connecter pour voir votre profil.
+        </div>
+    {% endif %}
 </section>
 {% endblock %}

@@ -6,6 +6,8 @@ use App\Repository\ContactRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 // <<< NOUVEAU : SUPPRIMEZ LA LIGNE #[ORM\HasLifecycleCallbacks()]
@@ -17,7 +19,12 @@ class Contact
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Regex(
+        pattern: '/^\+22901\d{8}$/',
+    
+    )]
     private ?string $phoneNumber = null;
+
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $firstName = null;

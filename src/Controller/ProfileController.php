@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class ProfileController extends AbstractController
@@ -18,7 +19,7 @@ class ProfileController extends AbstractController
         $user = $this->getUser();
 
         return $this->render('profile/index.html.twig', [
-            'user' => $user,
+            'user' => $user, // peut être null, géré dans le twig
         ]);
     }
 
@@ -28,10 +29,17 @@ class ProfileController extends AbstractController
         $user = $this->getUser();
 
         if (!$user) {
-            throw $this->createAccessDeniedException('Aucun utilisateur connecté.');
+            // redirection vers login ou page d'erreur propre
+            $this->addFlash('warning', 'Aucun utilisateur connecté.');
+            return $this->redirectToRoute('app_profile');
         }
 
         $form = $this->createFormBuilder($user)
+            ->add('email', EmailType::class, [
+                'label' => 'Adresse email',
+                'disabled' => true,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'email@example.com']
+            ])
             ->add('fullName', TextType::class, [
                 'label' => 'Nom complet',
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Votre nom complet']
@@ -59,7 +67,7 @@ class ProfileController extends AbstractController
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
-            'user' => $user, // pour pouvoir afficher l’email en lecture seule
+            'user' => $user, // pour affichage de l’email par ex.
         ]);
     }
 }

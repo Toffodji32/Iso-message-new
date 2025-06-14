@@ -1,26 +1,88 @@
-{# templates/contact/_form.html.twig #}
+{{ form_start(form, {
+    'action': contact is defined and contact.id is not null 
+        ? path('app_contact_edit', {'id': contact.id}) 
+        : path('app_contact_new'),
+    'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}
+}) }}
 
-{# Ce partiel est inclus par les pages de création et de modification de contact #}
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">{{ button_label|default('Ajouter un contact') }}</h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      {% for field in form %}
+        {% if field.vars.name != '_token' %}
+          {# Tous les champs sauf contactGroups en demi-largeur #}
+          {% if field.vars.name != 'contactGroups' %}
+            <div class="col-md-6">
+              <label for="{{ field.vars.id }}" class="form-label fw-semibold">
+                {{ field.vars.label }}
+                {% if field.vars.required %}
+                  <span class="text-danger">*</span>
+                {% endif %}
+              </label>
 
-{% for field in form %}
-    {% if field.vars.name not in ['_token'] %}
-        <div class="form-group" style="margin-bottom: 15px;">
-            {{ form_label(field, null, {'label_attr': {'style': 'font-weight: bold;'}}) }}
+              {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
 
-            {# Appliquer l'ID et la classe spécifique UNIQUEMENT au champ contactGroups #}
-            {% if field.vars.name == 'contactGroups' %}
-                {{ form_widget(field, {'attr': {'class': 'form-control select2-enable', 'id': 'contact_groups_select', 'style': 'width: 100%; padding: 8px;'}}) }}
-            {% else %}
-                {# Appliquer les styles génériques aux autres champs #}
-                {{ form_widget(field, {'attr': {'class': 'form-control', 'style': 'width: 100%; padding: 8px;'}}) }}
-            {% endif %}
+              {% if form_errors(field)|length > 0 %}
+                <div class="invalid-feedback d-block">
+                  {{ form_errors(field) }}
+                </div>
+              {% endif %}
+            </div>
 
-            {{ form_errors(field) }}
-        </div>
-    {% endif %}
-{% endfor %}
+          {# Champ contactGroups en pleine largeur + plus grand #}
+          {% else %}
+            <div class="col-md-12 mt-3">
+              <label for="{{ field.vars.id }}" class="form-label fw-semibold">
+                {{ field.vars.label }}
+                {% if field.vars.required %}
+                  <span class="text-danger">*</span>
+                {% endif %}
+              </label>
 
-{# Le bouton est rendu ici par défaut, mais vous pouvez le passer en paramètre comme vous le faites #}
-<button type="submit" style="padding: 10px 20px; background-color: #007BFF; color: white; border: none; border-radius: 4px;">
-    {{ button_label|default('Enregistrer') }} {# Utilise le 'button_label' passé, ou 'Enregistrer' par défaut #}
-</button>
+              {{ form_widget(field, {
+                'attr': {
+                  'class': 'form-select',
+                  'size': '6',
+                  'style': 'min-height: 150px;'
+                }
+              }) }}
+
+              {% if form_errors(field)|length > 0 %}
+                <div class="invalid-feedback d-block">
+                  {{ form_errors(field) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="mt-4 text-center">
+      <button type="submit" class="btn btn-primary btn-lg px-5">
+        {{ button_label|default('Ajouter') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
+
+{{ form_end(form) }}

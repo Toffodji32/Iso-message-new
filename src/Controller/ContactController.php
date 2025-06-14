@@ -64,6 +64,14 @@ class ContactController extends AbstractController
 
             return $this->redirectToRoute('app_contact_index', [], Response::HTTP_SEE_OTHER);
         }
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('contact/_form.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Créer',
+            'contact' => $contact,
+            ]);
+        }
+
 
         return $this->render('contact/new.html.twig', [
             'contact' => $contact,
@@ -71,33 +79,78 @@ class ContactController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_contact_show', methods: ['GET'])]
-    public function show(Contact $contact): Response
-    {
-        return $this->render('contact/show.html.twig', [
-            'contact' => $contact,
-        ]);
-    }
+   
 
     #[Route('/{id}/edit', name: 'app_contact_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Contact $contact, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(ContactForm::class, $contact);
-        $form->handleRequest($request);
+public function edit(Request $request, Contact $contact, EntityManagerInterface $entityManager): Response
+{
+    $form = $this->createForm(ContactForm::class, $contact);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
 
-            $this->addFlash('success', 'Le contact a été modifié avec succès.'); // Ajout d'un message flash
+        $this->addFlash('success', 'Le contact a été modifié avec succès.');
 
-            return $this->redirectToRoute('app_contact_index', [], Response::HTTP_SEE_OTHER);
-        }
+        return $this->redirectToRoute('app_contact_index', [], Response::HTTP_SEE_OTHER);
+    }
 
-        return $this->render('contact/edit.html.twig', [
-            'contact' => $contact,
-            'form' => $form,
+    if ($request->isXmlHttpRequest()) {
+        return $this->render('contact/_form.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Modifier',
+            'contact' => $contact, 
         ]);
     }
+
+    return $this->render('contact/edit.html.twig', [
+        'contact' => $contact, 
+        'form' => $form,
+    ]);
+}
+
+    #[Route('/contacts/export', name: 'app_contact_export')]
+public function export(EntityManagerInterface $em): Response
+{
+    $contacts = $em->getRepository(Contact::class)->findAll();
+
+    $filename = 'contacts_' . date('Ymd_His') . '.csv';
+
+    // Capture de sortie
+    ob_start();
+
+    // Écriture du BOM UTF-8
+    echo "\xEF\xBB\xBF";
+
+    $handle = fopen('php://output', 'w+');
+
+    // En-tête du fichier CSV avec séparateur ; pour Excel
+    fputcsv($handle, ['ID', 'Téléphone', 'Prénom', 'Nom', 'Email', 'Groupes'], ';');
+
+    // Données
+    foreach ($contacts as $contact) {
+        $groupNames = array_map(fn($g) => $g->getName(), $contact->getContactGroups()->toArray());
+        fputcsv($handle, [
+            $contact->getId(),
+            $contact->getPhoneNumber(),
+            $contact->getFirstName(),
+            $contact->getLastName(),
+            $contact->getEmail(),
+            implode(', ', $groupNames)
+        ], ';'); // Séparateur ;
+    }
+
+    fclose($handle);
+
+    $content = ob_get_clean();
+
+    return new Response($content, 200, [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ]);
+}
+
+
 
     #[Route('/{id}', name: 'app_contact_delete', methods: ['POST'])]
     public function delete(Request $request, Contact $contact, EntityManagerInterface $entityManager): Response

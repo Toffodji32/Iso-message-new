@@ -47,6 +47,10 @@
             <div class="sub-nav" {% if app.request.get('_route') starts with 'app_sms' %}style="display: block;"{% endif %}>
                 <a href="{{ path('app_send_sms') }}" class="sub-nav-item {% if app.request.get('_route') == 'app_send_sms' %}active{% endif %}">Messages</a>
             </div>
+            
+            <div class="sub-nav" {% if app.request.get('_route') starts with 'app_sms' %}style="display: block;"{% endif %}>
+                <a href="{{ path('app_send_sms') }}" class="sub-nav-item {% if app.request.get('_route') == 'app_sms_historique' %}active{% endif %}">Historique</a>
+            </div>
 
             <div class="nav-section">DÉVELOPPEUR & API</div>
             <a href="{{ path('app_api_settings') }}" class="nav-item {% if app.request.get('_route') == 'app_api_key' %}active{% endif %}">
