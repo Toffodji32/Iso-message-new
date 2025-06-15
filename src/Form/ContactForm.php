@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ContactForm extends AbstractType
 {
@@ -33,14 +34,24 @@ class ContactForm extends AbstractType
             ->add('firstName', TextType::class, [
                 'label' => 'Prénom',
                 'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le prénom est obligatoire.']),
+                ],
+                
             ])
             ->add('lastName', TextType::class, [
                 'label' => 'Nom',
                 'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom est obligatoire.']),
+                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Cette case est obligatoire.']),
+                ],
             ])
             ->add('contactGroups', EntityType::class, [
                 'class' => ContactGroup::class,

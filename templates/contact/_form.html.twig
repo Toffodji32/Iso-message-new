@@ -2,11 +2,18 @@
     'action': contact is defined and contact.id is not null 
         ? path('app_contact_edit', {'id': contact.id}) 
         : path('app_contact_new'),
-    'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}
+    'method': contact is defined and contact.id is not null ? 'POST' : 'POST',
+    'attr': {
+        'id': 'contact-form',
+        'class': 'needs-validation',
+        'novalidate': 'novalidate'
+    }
 }) }}
 
+
+
 <div class="card shadow-sm">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
     <h5 class="mb-0">{{ button_label|default('Ajouter un contact') }}</h5>
   </div>
   <div class="card-body">

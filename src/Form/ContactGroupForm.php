@@ -8,17 +8,32 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ContactGroupForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
+            ->add('name', null, [
+                'label' => 'Nom du groupe',
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom du groupe est obligatoire.']),
+                ],
+            ])
             ->add('contacts', EntityType::class, [
                 'class' => Contact::class,
-                'choice_label' => 'id',
+                'choice_label' => function (Contact $contact) {
+                    return $contact->getFirstName() . ' ' . $contact->getLastName();
+                },
+                'label' => 'Contacts',
                 'multiple' => true,
+                'expanded' => false,
+                'attr' => [
+                    'class' => 'form-select',
+                    'size' => 6,
+                    'style' => 'min-height: 150px;'
+            ]
             ])
         ;
     }

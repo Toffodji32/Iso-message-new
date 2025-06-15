@@ -17,11 +17,18 @@ class ContactRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Contact[] Returns an array of Contact objects based on filters
+     * Retourne les contacts filtrés par recherche et/ou groupe.
+     *
+     * @param string|null $searchQuery Texte à rechercher
+     * @param int|null $groupId ID du groupe sélectionné
+     * @return Contact[]
      */
     public function findByFilters(?string $searchQuery, ?int $groupId): array
     {
-        $qb = $this->createQueryBuilder('c');
+        $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.contactGroups', 'cg') // pour éviter les exclusions
+            ->addSelect('cg') // optimisation si on affiche les groupes
+            ->orderBy('c.firstName', 'ASC');
 
         if ($searchQuery) {
             $qb->andWhere('c.firstName LIKE :query OR c.lastName LIKE :query OR c.phoneNumber LIKE :query OR c.email LIKE :query')
@@ -29,41 +36,10 @@ class ContactRepository extends ServiceEntityRepository
         }
 
         if ($groupId) {
-            // Utilise la relation Many-to-Many
-            $qb->join('c.contactGroups', 'cg')
-               ->andWhere('cg.id = :groupId')
+            $qb->andWhere('cg.id = :groupId')
                ->setParameter('groupId', $groupId);
         }
 
-        return $qb->orderBy('c.firstName', 'ASC') // Tri par défaut
-                  ->getQuery()
-                  ->getResult();
+        return $qb->getQuery()->getResult();
     }
-
-    // Vous pouvez laisser les méthodes findByExampleField et findOneBySomeField commentées,
-    // ou les supprimer si vous ne les utilisez pas. L'important est que findByFilters soit actif.
-    // /**
-    //  * @return Contact[] Returns an array of Contact objects
-    //  */
-    // public function findByExampleField($value): array
-    // {
-    //    return $this->createQueryBuilder('c')
-    //        ->andWhere('c.exampleField = :val')
-    //        ->setParameter('val', $value)
-    //        ->orderBy('c.id', 'ASC')
-    //        ->setMaxResults(10)
-    //        ->getQuery()
-    //        ->getResult()
-    //    ;
-    // }
-
-    // public function findOneBySomeField($value): ?Contact
-    // {
-    //    return $this->createQueryBuilder('c')
-    //        ->andWhere('c.exampleField = :val')
-    //        ->setParameter('val', $value)
-    //        ->getQuery()
-    //        ->getOneOrNullResult()
-    //    ;
-    // }
 }

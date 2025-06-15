@@ -1,6 +1,7 @@
 {{ form_start(form, {
-    'action': action_url,
-    'method': 'POST',
+    'action': action_url is defined ? action_url : (contact_group is defined and contact_group.id is not null
+        ? path('app_contact_group_edit', {'id': contact_group.id})
+        : path('app_contact_group_new')),
     'attr': {
         'id': 'contact-group-form',
         'class': 'needs-validation',
@@ -9,24 +10,82 @@
 }) }}
 
 
+<div class="card shadow-sm">
+  <div class="card-header">
+    <h5 class="mb-0">{{ button_label|default('Créer un groupe') }}</h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
 
-<div style="margin-bottom: 20px;">
-    {{ form_label(form.name, 'Nom du groupe', {'label_attr': {'style': 'display: block; margin-bottom: 5px; font-weight: bold;'}}) }}
-    {{ form_widget(form.name, {'attr': {'style': 'width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;'}}) }}
-    {{ form_errors(form.name) }}
+      {# Champ Nom du groupe (demi-largeur) #}
+      <div class="col-md-6">
+        <label for="{{ form.name.vars.id }}" class="form-label fw-semibold">
+          {{ form.name.vars.label }}
+          {% if form.name.vars.required %}
+            <span class="text-danger">*</span>
+          {% endif %}
+        </label>
+
+        {{ form_widget(form.name, {
+          'attr': {'class': 'form-control', 'placeholder': 'Ex: Clients VIP'}
+        }) }}
+
+        {% if form_errors(form.name)|length > 0 %}
+          <div class="invalid-feedback d-block">
+            {{ form_errors(form.name) }}
+          </div>
+        {% endif %}
+      </div>
+
+      {# Champ Contacts (pleine largeur) #}
+      <div class="col-md-12 mt-3">
+        <label for="{{ form.contacts.vars.id }}" class="form-label fw-semibold">
+          {{ form.contacts.vars.label }}
+          {% if form.contacts.vars.required %}
+            <span class="text-danger">*</span>
+          {% endif %}
+        </label>
+
+        {{ form_widget(form.contacts, {
+          'attr': {
+            'class': 'form-select',
+            'multiple': 'multiple',
+            'size': '6',
+            'style': 'min-height: 150px;'
+          }
+        }) }}
+
+        {% if form_errors(form.contacts)|length > 0 %}
+          <div class="invalid-feedback d-block">
+            {{ form_errors(form.contacts) }}
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="mt-4 text-center">
+      <button type="submit" class="btn btn-primary btn-lg px-5">
+        <i class="fas fa-check-circle me-1"></i> {{ button_label|default('Enregistrer') }}
+      </button>
+    </div>
+  </div>
 </div>
 
-<div style="margin-bottom: 20px;">
-    {{ form_label(form.contacts, 'Contacts', {'label_attr': {'style': 'display: block; margin-bottom: 5px; font-weight: bold;'}}) }}
-    {{ form_widget(form.contacts, {'attr': {'style': 'width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;'}}) }}
-    {{ form_errors(form.contacts) }}
-</div>
-
-<div style="text-align: center;">
-    <button type="submit" class="btn btn-primary">
-        Enregistrer
-    </button>
-</div>
-
+<script>
+  (() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
 
 {{ form_end(form) }}

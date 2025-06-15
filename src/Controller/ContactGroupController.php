@@ -22,55 +22,48 @@ final class ContactGroupController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_contact_group_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $contactGroup = new ContactGroup();
-        $form = $this->createForm(ContactGroupForm::class, $contactGroup);
-        $form->handleRequest($request);
+#[Route('/new', name: 'app_contact_group_new', methods: ['GET', 'POST'])]
+public function new(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $contactGroup = new ContactGroup();
+    $form = $this->createForm(ContactGroupForm::class, $contactGroup);
+    $form->handleRequest($request);
 
-        $actionUrl = $this->generateUrl('app_contact_group_new');
+    $actionUrl = $this->generateUrl('app_contact_group_new');
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $entityManager->persist($contactGroup);
-                $entityManager->flush();
 
-                if ($request->isXmlHttpRequest()) {
-                    return $this->json(['success' => true]);
-                }
-
-                return $this->redirectToRoute('app_contact_group_index');
-            }
-
-            if ($request->isXmlHttpRequest()) {
-                return $this->json([
-                    'success' => false,
-                    'form' => $this->renderView('contact_group/_form.html.twig', [
-                        'form' => $form->createView(),
-                        'contact_group' => $contactGroup,
-                        'button_label' => 'Créer',
-                        'action_url' => $actionUrl,
-                    ])
-                ]);
-            }
-        }
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->persist($contactGroup);
+        $entityManager->flush();
 
         if ($request->isXmlHttpRequest()) {
-            return $this->render('contact_group/_form.html.twig', [
-                'form' => $form->createView(),
-                'contact_group' => $contactGroup,
-                'button_label' => 'Créer',
-                'action_url' => $actionUrl,
-            ]);
+            return $this->json(['success' => true]);
         }
 
-        return $this->render('contact_group/new.html.twig', [
+        return $this->redirectToRoute('app_contact_group_index');
+    }
+
+
+    if ($request->isXmlHttpRequest()) {
+        $formHtml = $this->renderView('contact_group/_form.html.twig', [
             'form' => $form->createView(),
             'contact_group' => $contactGroup,
+            'button_label' => 'Créer',
             'action_url' => $actionUrl,
         ]);
+
+        return $form->isSubmitted()
+            ? $this->json(['success' => false, 'form' => $formHtml])
+            : new Response($formHtml);
     }
+
+    
+    return $this->render('contact_group/new.html.twig', [
+        'form' => $form->createView(),
+        'contact_group' => $contactGroup,
+        'action_url' => $actionUrl,
+    ]);
+}
 
     #[Route('/{id}/edit', name: 'app_contact_group_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ContactGroup $contactGroup, EntityManagerInterface $entityManager): Response
