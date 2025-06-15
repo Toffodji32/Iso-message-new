@@ -17,6 +17,7 @@ class ContactGroup
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
+    
 
     /**
      * @var Collection<int, Contact>

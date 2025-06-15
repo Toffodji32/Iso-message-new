@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
-// <<< NOUVEAU : SUPPRIMEZ LA LIGNE #[ORM\HasLifecycleCallbacks()]
+
 class Contact
 {
     #[ORM\Id]
@@ -21,7 +21,7 @@ class Contact
     #[ORM\Column(length: 255)]
     #[Assert\Regex(
         pattern: '/^\+22901\d{8}$/',
-    
+
     )]
     private ?string $phoneNumber = null;
 
@@ -47,10 +47,7 @@ class Contact
     #[ORM\OneToMany(targetEntity: SmsRecipient::class, mappedBy: 'contact')]
     private Collection $smsRecipients;
 
-    // <<< NOUVEAU : SUPPRIMEZ TOUT LE BLOC SUIVANT CONCERNANT createdAt
-    // #[ORM\Column(type: 'datetime_immutable', nullable: false)]
-    // private ?\DateTimeImmutable $createdAt = null;
-    // FIN DU BLOC À SUPPRIMER
+
 
     public function __construct()
     {
@@ -157,20 +154,16 @@ class Contact
         return $this;
     }
 
-    // <<< NOUVEAU : SUPPRIMEZ TOUT LE BLOC SUIVANT CONCERNANT les méthodes de createdAt
-    // public function getCreatedAt(): ?\DateTimeImmutable
-    // {
-    //     return $this->createdAt;
-    // }
-    // public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    // {
-    //     $this->createdAt = $createdAt;
-    //     return $this;
-    // }
-    // #[ORM\PrePersist]
-    // public function setCreatedAtValue(): void
-    // {
-    //     $this->createdAt = new \DateTimeImmutable();
-    // }
-    // FIN DU BLOC À SUPPRIMER
+    public function __toString(): string
+    {
+        // Retourne "Prénom Nom" si les deux existent, sinon le numéro de téléphone.
+        if ($this->firstName && $this->lastName) {
+            return $this->firstName . ' ' . $this->lastName;
+        }
+
+        // Valeur de secours si le nom/prénom n'est pas défini
+        return $this->phoneNumber;
+    }
+
+
 }

@@ -24,6 +24,7 @@ class DashboardController extends AbstractController
         $stats = [
             'total_contacts' => $totalContacts,
             'total_groups' => $totalGroups,
+            
         ];
 
 
@@ -32,7 +33,7 @@ class DashboardController extends AbstractController
         $recentContacts = $contactRepository->findBy(
             [],
             ['createdAt' => 'DESC'],
-            5             
+            5
         );
 
         // Si 'createdAt' n'existe pas, vous pouvez utiliser 'id'

@@ -2,19 +2,19 @@
 
 namespace App\Form;
 
-use App\Entity\Contact;
 use App\Entity\ContactGroup;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\FileType; // Importez le FileType
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class SmsMessageTypeForm extends AbstractType
 {
@@ -25,7 +25,6 @@ class SmsMessageTypeForm extends AbstractType
                 'label' => 'Expéditeur',
                 'choices' => [
                     'IsoMessage' => 'IsoMessage',
-                    // Ajoutez d'autres expéditeurs si dynamiques (ex: depuis la BDD)
                 ],
                 'placeholder' => 'Choisissez l\'expéditeur...',
                 'required' => false,
@@ -39,15 +38,6 @@ class SmsMessageTypeForm extends AbstractType
                 'data' => 'classic',
                 'required' => true,
             ])
-            ->add('timezone', ChoiceType::class, [
-                'label' => 'Fuseau horaire',
-                'choices' => [
-                    '(GMT +1:00) Europe/Paris' => 'Europe/Paris',
-                    // Considérez d'ajouter d'autres fuseaux horaires dynamiquement ou de rendre ce champ plus flexible
-                ],
-                'data' => 'Europe/Paris',
-                'required' => false,
-            ])
             ->add('scheduleAt', DateTimeType::class, [
                 'label' => 'Date et heure d\'envoi',
                 'required' => false,
@@ -57,7 +47,7 @@ class SmsMessageTypeForm extends AbstractType
                     'placeholder' => 'Gardez vide pour l\'envoi instantané'
                 ],
             ])
-            // Nouveau champ pour le choix de la méthode d'ajout des destinataires
+
             ->add('recipientOption', ChoiceType::class, [
                 'label' => 'Comment souhaitez-vous ajouter les destinataires ?',
                 'choices' => [
@@ -65,25 +55,46 @@ class SmsMessageTypeForm extends AbstractType
                     'Sélectionner un groupe de contacts' => 'group',
                     'Importer un fichier de contacts' => 'import',
                 ],
-                'expanded' => true, // Rend les choix sous forme de boutons radio
-                'multiple' => false, // Un seul choix autorisé
-                'data' => 'manual', // Option par défaut au chargement du formulaire
-                'attr' => ['class' => 'recipient-options'], // Classe pour le ciblage JS dans le Twig
+                'expanded' => true,
+                'multiple' => false,
+                'data' => 'manual',
+                'attr' => ['class' => 'recipient-options'],
             ])
-            // Champs conditionnels, tous non requis par défaut au niveau du FormType
-            // La validation (rendre un champ requis selon le choix) sera gérée dans le contrôleur ou via des événements de formulaire.
+
             ->add('directNumbers', TextareaType::class, [
                 'label' => 'Numéros de téléphone (manuels)',
-                'required' => false, // Rendu non requis ici
+                'required' => false,
                 'attr' => [
-                    'placeholder' => 'Saisissez les numéros (un par ligne, ex: +229XXXXXXXX)',
+                    'placeholder' => 'Saisissez les numéros (un par ligne, ex: +229012345678)',
                     'rows' => 5,
                 ],
-                'help' => 'Séparez les numéros par des sauts de ligne. Ex: +22997000001',
+                'help' => 'Séparez les numéros par des sauts de ligne. Chaque numéro doit être au format +22901XXXXXXXX.',
+                // NOUVEAU : Ajout des contraintes de validation
+                'constraints' => [
+                    new Assert\Callback([
+                        'callback' => function (?string $value, ExecutionContextInterface $context) {
+                            if (null === $value || '' === $value) {
+                                return; // Le champ n'est pas requis, donc on ne valide pas s'il est vide.
+                            }
+
+                            $numbers = preg_split('/[\r\n]+/', $value, -1, PREG_SPLIT_NO_EMPTY);
+                            $phoneNumberRegex = '/^\+22901\d{8}$/'; // Seulement +22901 suivi de 8 chiffres
+
+                            foreach ($numbers as $number) {
+                                $trimmedNumber = trim($number);
+                                if (!preg_match($phoneNumberRegex, $trimmedNumber)) {
+                                    $context->buildViolation('Le numéro "{{ value }}" n\'est pas au format attendu (+22901XXXXXXXX).')
+                                        ->setParameter('{{ value }}', $trimmedNumber)
+                                        ->addViolation();
+                                }
+                            }
+                        },
+                    ]),
+                ],
             ])
             ->add('contactGroups', EntityType::class, [
                 'class' => ContactGroup::class,
-                'choice_label' => 'name', 
+                'choice_label' => 'name',
                 'multiple' => true,
                 'expanded' => false,
                 'required' => false,
@@ -94,7 +105,7 @@ class SmsMessageTypeForm extends AbstractType
                 'label' => 'Fichier de contacts (CSV, TXT)',
                 'mapped' => false,
                 'required' => false,
-                'help' => 'Formats supportés : CSV, TXT. Un numéro par ligne.',
+                'help' => 'Formats supportés : CSV, TXT. Un numéro par ligne. Chaque numéro doit être au format +22901XXXXXXXX.',
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('messageContent', TextareaType::class, [
@@ -110,31 +121,12 @@ class SmsMessageTypeForm extends AbstractType
                 'label' => 'Envoyer',
                 'attr' => ['class' => 'btn btn-primary'],
             ]);
-            // Le champ 'contacts' n'est pas directement utilisé dans ce nouveau schéma de choix,
-            // car l'option 'group' est privilégiée pour la sélection de multiples contacts.
-            // Si vous avez besoin de sélectionner des contacts individuels en dehors des groupes,
-            // il faudrait ajouter une option 'select_individual_contacts' au recipientOption
-            // et rendre le champ 'contacts' visible conditionnellement.
-            // Pour l'instant, je vais laisser le champ 'contacts' de côté ou le supprimer si non utilisé.
-            // Si vous souhaitez le conserver pour une autre raison ou le rendre conditionnel, merci de préciser.
-            // Je le laisse commenté pour l'instant car la requête initiale ne le mentionnait pas dans les 3 options.
-            /*
-            ->add('contacts', EntityType::class, [
-                'class' => Contact::class,
-                'choice_label' => 'phoneNumber', // Ou 'fullName' si disponible
-                'multiple' => true,
-                'expanded' => false,
-                'required' => false,
-                'label' => 'Sélectionner des contacts individuels',
-                // Supprimez 'attr' => ['style' => 'display:none;']
-            ])
-            */
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // 'data_class' => VotreEntiteSms::class, // Assurez-vous que votre Data Class est configurée ici si vous en avez une
+            // 'data_class' => VotreEntiteSms::class, // Si applicable
         ]);
     }
 }

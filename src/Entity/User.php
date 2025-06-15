@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\DBAL\Types\Types; // NOUVEAU : Ajoutez ceci pour Types::INTEGER
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -35,6 +36,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * NOUVEAU : Propriété pour le solde des crédits SMS
+     */
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $smsCredits = 0; // Initialisez à 0 par défaut
 
     /**
      * @var Collection<int, SmsMessage>
@@ -193,5 +200,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->phoneNumber = $phoneNumber;
 
         return $this;
+    }
+
+
+    public function getSmsCredits(): int
+    {
+        return $this->smsCredits;
+    }
+
+    public function setSmsCredits(int $smsCredits): static
+    {
+        $this->smsCredits = $smsCredits;
+
+        return $this;
+    }
+
+    /**
+     * Débite des crédits du solde de l'utilisateur.
+     *
+     * @param int $amount Le montant à débiter.
+     * @return bool Vrai si le débit a réussi, Faux si le solde est insuffisant.
+     */
+    public function deductSmsCredits(int $amount): bool
+    {
+        if ($this->smsCredits >= $amount) {
+            $this->smsCredits -= $amount;
+            return true;
+        }
+        return false;
     }
 }

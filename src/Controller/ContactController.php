@@ -32,6 +32,7 @@ class ContactController extends AbstractController
                 'class' => ContactGroup::class,
                 'choice_label' => 'name',
                 'placeholder' => 'Sélectionner un groupe',
+                'placeholder' => 'Sélectionner un groupe',
                 'required' => false,
                 'mapped' => false, 
                 'data' => $groupId ? $contactRepository->getEntityManager()->getRepository(ContactGroup::class)->find($groupId) : null, 
@@ -42,6 +43,8 @@ class ContactController extends AbstractController
 
         return $this->render('contact/index.html.twig', [
             'contacts' => $contacts,
+            'searchQuery' => $searchQuery,
+            'filterForm' => $filterForm->createView(),
             'searchQuery' => $searchQuery,
             'filterForm' => $filterForm->createView(),
         ]);
@@ -82,7 +85,7 @@ class ContactController extends AbstractController
         ]);
     }
 
-   
+
 
     #[Route('/{id}/edit', name: 'app_contact_edit', methods: ['GET', 'POST'])]
 public function edit(Request $request, Contact $contact, EntityManagerInterface $entityManager): Response
@@ -107,7 +110,7 @@ public function edit(Request $request, Contact $contact, EntityManagerInterface 
         return $this->render('contact/_form.html.twig', [
             'form' => $form->createView(),
             'button_label' => 'Modifier',
-            'contact' => $contact, 
+            'contact' => $contact,
         ]);
     }
 
@@ -167,6 +170,7 @@ public function export(EntityManagerInterface $em): Response
             $entityManager->flush();
             $this->addFlash('success', 'Le contact a été supprimé avec succès.'); 
         } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
             $this->addFlash('error', 'Token CSRF invalide.');
         }
 

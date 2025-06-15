@@ -38,7 +38,7 @@ class SmsMessage
     /**
      * @var Collection<int, SmsRecipient>
      */
-    #[ORM\OneToMany(targetEntity: SmsRecipient::class, mappedBy: 'smsMessage')]
+    #[ORM\OneToMany(targetEntity: SmsRecipient::class, mappedBy: 'smsMessage', cascade: ['persist'])] // <--- MODIFICATION ICI
     private Collection $smsRecipients;
 
     public function __construct()

@@ -1,4 +1,5 @@
 <?php
+// Fichier : src/Form/ContactGroupForm.php
 
 namespace App\Form;
 
@@ -15,25 +16,11 @@ class ContactGroupForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', null, [
-                'label' => 'Nom du groupe',
-                'constraints' => [
-                    new NotBlank(['message' => 'Le nom du groupe est obligatoire.']),
-                ],
-            ])
+            ->add('name')
             ->add('contacts', EntityType::class, [
                 'class' => Contact::class,
-                'choice_label' => function (Contact $contact) {
-                    return $contact->getFirstName() . ' ' . $contact->getLastName();
-                },
-                'label' => 'Contacts',
+                'choice_label' => 'id',
                 'multiple' => true,
-                'expanded' => false,
-                'attr' => [
-                    'class' => 'form-select',
-                    'size' => 6,
-                    'style' => 'min-height: 150px;'
-            ]
             ])
         ;
     }
