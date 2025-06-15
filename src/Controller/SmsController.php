@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Form\SmsMessageTypeForm;
-use App\Entity\Contact;
+use App\Entity\Contact; // Assurez-vous que Contact est bien utilisé si nécessaire
 use App\Entity\ContactGroup;
 use App\Entity\SmsMessage;
 use App\Entity\SmsRecipient;
@@ -14,19 +14,28 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Entity\User; // NOUVEAU : Importez votre entité User ici
 
 final class SmsController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private SmsSender $smsSender;
     private Security $security;
+    private int $maxSmsLimit; // Nouvelle propriété pour la limite
+    private int $costPerSms;  // Nouvelle propriété pour le coût unitaire
 
-
-    public function __construct(EntityManagerInterface $entityManager, SmsSender $smsSender, Security $security)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        SmsSender $smsSender,
+        Security $security,
+        int $maxSmsLimit, // Injectez la limite
+        int $costPerSms   // Injectez le coût unitaire
+    ) {
         $this->entityManager = $entityManager;
         $this->smsSender = $smsSender;
-        $this->security = $security; // Initialisez la propriété security
+        $this->security = $security;
+        $this->maxSmsLimit = $maxSmsLimit;
+        $this->costPerSms = $costPerSms;
     }
 
     #[Route('/sms/send', name: 'app_send_sms')]
@@ -39,19 +48,17 @@ final class SmsController extends AbstractController
             $data = $form->getData();
 
             $messageContent = $data['messageContent'];
-            $scheduleAt = $data['scheduleAt']; // Sera null pour un envoi immédiat
+            $scheduleAt = $data['scheduleAt'];
 
+            /** @var User $user */ // CORRECTION : Type-hinting pour assurer que $user est bien une instance de App\Entity\User
             $user = $this->security->getUser();
             if (!$user) {
                 $this->addFlash('error', 'Vous devez être connecté pour envoyer des SMS.');
                 return $this->redirectToRoute('app_login');
             }
 
+            // Récupération des destinataires (logique existante)
             $recipients = [];
-            $smsType = $data['smsType']; // Récupérer le type de SMS (classic, flash)
-            $sender = $data['sender'];   // Récupérer l'expéditeur
-
-            // Logique de récupération des destinataires basée sur recipientOption
             $recipientOption = $form->get('recipientOption')->getData();
 
             switch ($recipientOption) {
@@ -77,8 +84,6 @@ final class SmsController extends AbstractController
                 case 'import':
                     $importFile = $form->get('importFile')->getData();
                     if ($importFile) {
-                        // IMPORTANT : La logique d'importation doit être ici.
-                        // Pour l'exemple, supposons un fichier texte simple avec un numéro par ligne.
                         $fileContent = file_get_contents($importFile->getPathname());
                         $fileNumbers = preg_split('/[\r\n]+/', $fileContent, -1, PREG_SPLIT_NO_EMPTY);
                         foreach ($fileNumbers as $number) {
@@ -88,45 +93,59 @@ final class SmsController extends AbstractController
                     break;
             }
 
-            // Supprimer les doublons et nettoyer les numéros
             $recipients = array_unique(array_filter($recipients));
+            $numberOfRecipients = count($recipients);
 
             if (empty($recipients)) {
                 $this->addFlash('error', 'Veuillez spécifier au moins un destinataire (numéro direct, contact ou groupe).');
                 return $this->redirectToRoute('app_send_sms');
             }
 
-            $numberOfRecipients = count($recipients);
-            $costPerSms = 1; // Coût par SMS (à adapter)
-            $totalCost = $numberOfRecipients * $costPerSms; // Gardé pour information
+            // --- VÉRIFICATION DE LA LIMITE DE SMS ---
+            if ($numberOfRecipients > $this->maxSmsLimit) {
+                $this->addFlash('error', sprintf('Vous ne pouvez envoyer qu\'un maximum de %d SMS par opération. Vous avez %d destinataires.', $this->maxSmsLimit, $numberOfRecipients));
+                return $this->redirectToRoute('app_send_sms');
+            }
 
-            // --- Suppression de la vérification du solde ---
-            $this->addFlash('info', 'La vérification du solde et le débit des crédits sont actuellement désactivés.');
+            // Calcul du coût total
+            $totalCost = $numberOfRecipients * $this->costPerSms;
 
-            // Création de l'entité SmsMessage (pour l'envoi immédiat ou planifié)
+            // --- VÉRIFICATION ET DÉBIT DU SOLDE DE L'UTILISATEUR ---
+            // La méthode deductSmsCredits est appelée ici, elle est maintenant reconnue grâce au type-hinting
+            if (!$user->deductSmsCredits($totalCost)) {
+                $this->addFlash('error', sprintf('Solde insuffisant. Vous avez %d crédits, mais %d sont nécessaires pour envoyer %d SMS.', $user->getSmsCredits(), $totalCost, $numberOfRecipients));
+                return $this->redirectToRoute('app_send_sms');
+            }
+
+            // Persister l'utilisateur après la déduction du solde
+            $this->entityManager->persist($user);
+            $this->entityManager->flush(); // Applique le changement de solde immédiatement
+
+            // Création du message SMS et des destinataires
             $smsMessage = new SmsMessage();
             $smsMessage->setMessageContent($messageContent);
-            $smsMessage->setUser($user); // L'utilisateur connecté est l'expéditeur du message
-            $smsMessage->setScheduleAt($scheduleAt); // Sera null si envoi immédiat
-            $smsMessage->setCost($totalCost); // Stocker le coût total du message
+            $smsMessage->setUser($user);
+            $smsMessage->setScheduleAt($scheduleAt);
+            $smsMessage->setCost($totalCost); // Enregistre le coût total
 
-            // Ajouter les destinataires à l'entité SmsMessage
             foreach ($recipients as $phoneNumber) {
                 $smsRecipient = new SmsRecipient();
                 $smsRecipient->setPhoneNumber($phoneNumber);
-                $smsRecipient->setStatus('pending'); // Statut initial
-                $smsMessage->addSmsRecipient($smsRecipient); // Associer le destinataire au message
+                $smsRecipient->setStatus('pending'); // Ou un statut initial approprié
+                $smsMessage->addSmsRecipient($smsRecipient);
             }
 
-            if ($scheduleAt === null) { // Envoi immédiat
-                $smsMessage->setStatus('sending'); // Statut indiquant qu'il est en cours d'envoi
+            // Gestion de l'envoi immédiat ou planifié
+            if ($scheduleAt === null) {
+                $smsMessage->setStatus('sending'); // Statut pour l'envoi immédiat
 
                 $this->entityManager->persist($smsMessage);
-                $this->entityManager->flush(); // Persister d'abord pour avoir un ID
+                $this->entityManager->flush(); // Persiste le message et les destinataires
 
                 $sentCount = 0;
                 $failedCount = 0;
 
+                // Envoi réel via le service SmsSender
                 foreach ($smsMessage->getSmsRecipients() as $smsRecipient) {
                     if ($this->smsSender->sendSms($smsRecipient->getPhoneNumber(), $messageContent)) {
                         $smsRecipient->setStatus('sent');
@@ -136,24 +155,21 @@ final class SmsController extends AbstractController
                         $smsRecipient->setStatus('failed');
                         $failedCount++;
                     }
-                    $this->entityManager->persist($smsRecipient); // Persister les changements de statut
+                    $this->entityManager->persist($smsRecipient);
                 }
-                $this->entityManager->flush(); // Flush final pour les destinataires
+                $this->entityManager->flush(); 
 
-                $this->addFlash('success', sprintf('%d SMS transmis à l\'opérateur, %d échecs de transmission.', $sentCount, $failedCount));
+                $this->addFlash('success', sprintf('%d SMS envoyés, %d échecs de transmission (coût total : %d crédits).', $sentCount, $failedCount, $totalCost));
 
-            } else { // SMS planifié
-                // Mettre le statut 'scheduled'
-                $smsMessage->setStatus('scheduled');
+            } else {
+                $smsMessage->setStatus('scheduled'); // Statut pour l'envoi planifié
 
                 $this->entityManager->persist($smsMessage);
-                $this->entityManager->flush(); // Persister le message et ses destinataires avec le statut 'scheduled'
-
-                $this->addFlash('success', sprintf('%d SMS planifiés avec succès pour le %s à %s. Ils seront envoyés automatiquement.', $numberOfRecipients, $scheduleAt->format('d/m/Y'), $scheduleAt->format('H:i')));
+                $this->entityManager->flush(); // Persiste le message et les destinataires
+                $this->addFlash('success', sprintf('%d SMS planifiés avec succès pour le %s à %s (coût total : %d crédits). Ils seront envoyés automatiquement.', $numberOfRecipients, $scheduleAt->format('d/m/Y'), $scheduleAt->format('H:i'), $totalCost));
             }
 
-            // Rediriger vers une page de rapport ou l'index après l'envoi
-            return $this->redirectToRoute('app_contact_index'); // Redirection temporaire
+            return $this->redirectToRoute('app_send_sms');
         }
 
         return $this->render('sms/send_sms.html.twig', [

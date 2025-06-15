@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Contact;
 use App\Entity\ContactGroup;
-use App\Form\ContactForm; // Ajouté : Assurez-vous que ce Form Type existe bien
-use App\Repository\ContactRepository; // Ajouté
+use App\Form\ContactForm;
+use App\Repository\ContactRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,33 +19,31 @@ class ContactController extends AbstractController
     #[Route('/', name: 'app_contact_index', methods: ['GET'])]
     public function index(Request $request, ContactRepository $contactRepository): Response
     {
-        // Récupérer le terme de recherche et l'ID du groupe depuis la requête
+
         $searchQuery = $request->query->get('q');
         $groupId = $request->query->get('group');
 
-        // Récupérer les contacts en fonction des filtres
-        // Nous allons créer une méthode dans le ContactRepository pour cela
-        $contacts = $contactRepository->findByFilters($searchQuery, (int)$groupId); // Cast en int pour s'assurer du type
 
-        // Créer un formulaire simple pour le filtre de groupe (sélecteur)
-        // C'est un formulaire "non-mappé" (unmapped form) juste pour le champ de filtre
+        $contacts = $contactRepository->findByFilters($searchQuery, (int)$groupId);
+
+
         $formBuilder = $this->createFormBuilder()
             ->add('group', EntityType::class, [
                 'class' => ContactGroup::class,
                 'choice_label' => 'name',
-                'placeholder' => 'Sélectionner un groupe', // Optionnel
+                'placeholder' => 'Sélectionner un groupe',
                 'required' => false,
-                'mapped' => false, // Important : ce champ n'est pas mappé à l'entité Contact
-                'data' => $groupId ? $contactRepository->getEntityManager()->getRepository(ContactGroup::class)->find($groupId) : null, // Pré-sélectionner le groupe si un filtre est appliqué
-                'attr' => ['onchange' => 'this.form.submit()'], // Soumet le formulaire automatiquement
+                'mapped' => false,
+                'data' => $groupId ? $contactRepository->getEntityManager()->getRepository(ContactGroup::class)->find($groupId) : null,
+                'attr' => ['onchange' => 'this.form.submit()'],
             ]);
 
         $filterForm = $formBuilder->getForm();
 
         return $this->render('contact/index.html.twig', [
             'contacts' => $contacts,
-            'searchQuery' => $searchQuery, // Passer le terme de recherche pour le pré-remplir
-            'filterForm' => $filterForm->createView(), // Passer la vue du formulaire de filtre
+            'searchQuery' => $searchQuery,
+            'filterForm' => $filterForm->createView(),
         ]);
     }
 
@@ -60,7 +58,7 @@ class ContactController extends AbstractController
             $entityManager->persist($contact);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Le contact a été créé avec succès.'); // Ajout d'un message flash
+            $this->addFlash('success', 'Le contact a été créé avec succès.');
 
             return $this->redirectToRoute('app_contact_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -79,7 +77,7 @@ class ContactController extends AbstractController
         ]);
     }
 
-   
+
 
     #[Route('/{id}/edit', name: 'app_contact_edit', methods: ['GET', 'POST'])]
 public function edit(Request $request, Contact $contact, EntityManagerInterface $entityManager): Response
@@ -90,7 +88,8 @@ public function edit(Request $request, Contact $contact, EntityManagerInterface 
     if ($form->isSubmitted() && $form->isValid()) {
         $entityManager->flush();
 
-        $this->addFlash('success', 'Le contact a été modifié avec succès.');
+            $this->addFlash('success', 'Le contact a été modifié avec succès.');
+
 
         return $this->redirectToRoute('app_contact_index', [], Response::HTTP_SEE_OTHER);
     }
@@ -99,12 +98,12 @@ public function edit(Request $request, Contact $contact, EntityManagerInterface 
         return $this->render('contact/_form.html.twig', [
             'form' => $form->createView(),
             'button_label' => 'Modifier',
-            'contact' => $contact, 
+            'contact' => $contact,
         ]);
     }
 
     return $this->render('contact/edit.html.twig', [
-        'contact' => $contact, 
+        'contact' => $contact,
         'form' => $form,
     ]);
 }
@@ -158,9 +157,9 @@ public function export(EntityManagerInterface $em): Response
         if ($this->isCsrfTokenValid('delete'.$contact->getId(), $request->request->get('_token'))) { // Utilisez request->get('_token') pour les tokens de formulaire
             $entityManager->remove($contact);
             $entityManager->flush();
-            $this->addFlash('success', 'Le contact a été supprimé avec succès.'); // Ajout d'un message flash
+            $this->addFlash('success', 'Le contact a été supprimé avec succès.');
         } else {
-            $this->addFlash('error', 'Token CSRF invalide.'); // Message d'erreur si le token est invalide
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         return $this->redirectToRoute('app_contact_index', [], Response::HTTP_SEE_OTHER);

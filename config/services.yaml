@@ -6,7 +6,6 @@
 parameters:
 
 services:
-    # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
@@ -15,6 +14,24 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        # Exclude directories that do not contain services
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+
+    # Ajoutez ou modifiez les définitions de services ci-dessous pour injecter les paramètres
+    App\Controller\SmsController:
+        arguments:
+            $maxSmsLimit: '%env(SMS_MAX_LIMIT)%'      # Injecte la limite max de SMS
+            $costPerSms: '%env(SMS_COST_PER_UNIT)%'   # Injecte le coût unitaire des SMS
+
+    App\Service\SmsSender:
+        arguments:
+            $smsMode: '%env(APP_SMS_MODE)%' # Injecte le mode d'envoi des SMS
+            $smsApiKey: '%env(SMS_API_KEY)%'          # Injecte la clé API SMS
+            $smsApiEndpoint: '%env(SMS_API_ENDPOINT)%' # Injecte l'endpoint de l'API SMS
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

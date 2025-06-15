@@ -29,7 +29,7 @@
         }
 
         .welcome-card h2 {
-            color: #4CAF50; /* Vert pour le titre */
+            color:rgb(53, 1, 121);
             font-size: 1.8rem;
             margin-bottom: 1rem;
         }
@@ -60,18 +60,17 @@
         }
 
         .btn-primary {
-            background-color: #3b82f6; /* Bleu */
+            background-color: #3b82f6;
             color: white;
             border-color: #3b82f6;
         }
 
         .btn-primary:hover {
-            background-color: #2563eb;
-            border-color: #2563eb;
+            background-color:rgb(85, 44, 134);
         }
 
         .btn-secondary {
-            background-color: #f3f4f6; /* Gris clair */
+            background-color: #f3f4f6;
             color: #374151;
             border-color: #d1d5db;
         }
@@ -125,6 +124,9 @@
         .stat-label {
             font-weight: 500;
             color: #666;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .stat-value {
@@ -132,16 +134,6 @@
             color: #333;
             font-size: 1.1rem;
         }
-
-        /* Les styles suivants pour les contacts récents ne sont plus nécessaires */
-        /* .recent-contacts-card { ... } */
-        /* .recent-contacts-card h3 { ... } */
-        /* .contact-list { ... } */
-        /* .contact-item { ... } */
-        /* .contact-item:last-child { ... } */
-        /* .contact-info { ... } */
-        /* .contact-date { ... } */
-        /* .no-contacts-message { ... } */
     </style>
 {% endblock %}
 
@@ -154,8 +146,12 @@
             <p>Votre solde de SMS disponible : <strong>{{ sms_balance ?? 0 }} SMS</strong></p>
 
             <div class="dashboard-actions">
-                <a href="{{ path('app_contact_index') }}" class="btn btn-primary">Voir mes contacts</a>
-                <a href="{{ path('app_contact_group_index') }}" class="btn btn-secondary">Gérer mes groupes</a>
+                <a href="{{ path('app_contact_index') }}" class="btn btn-primary">
+                    <i class="fas fa-users"></i> Voir mes contacts
+                </a>
+                <a href="{{ path('app_contact_group_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-people-group"></i> Gérer mes groupes
+                </a>
             </div>
         </div>
 
@@ -164,27 +160,19 @@
                 <h3>Statistiques rapides</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-label">Total contacts :</span>
+                        <span class="stat-label">
+                            <i class="fas fa-users text-primary"></i> Total contacts :
+                        </span>
                         <span class="stat-value">{{ stats.total_contacts ?? 0 }}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Total groupes :</span>
+                        <span class="stat-label">
+                            <i class="fas fa-people-group text-success"></i> Total groupes :
+                        </span>
                         <span class="stat-value">{{ stats.total_groups ?? 0 }}</span>
                     </div>
-                    {# NOUVEAU : La ligne pour les SMS envoyés (aujourd'hui) est maintenant commentée/supprimée #}
-                    {# <div class="stat-item">
-                        <span class="stat-label">SMS envoyés (aujourd'hui) :</span>
-                        <span class="stat-value">{{ stats.sms_sent_today ?? 0 }}</span>
-                    </div> #}
                 </div>
             </div>
-
-            {# NOUVEAU : Toute la section pour les derniers contacts ajoutés est maintenant supprimée #}
-            {# Supprimez tout ce bloc div qui contenait "recent-contacts-card" #}
-
         </div>
-
-        {# Vous pouvez ajouter d'autres sections ici si nécessaire #}
-
     </div>
 {% endblock %}

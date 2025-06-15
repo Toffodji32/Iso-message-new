@@ -1,527 +1,799 @@
-{% extends 'base.html.twig' %}
+    {% extends 'base.html.twig' %}
 
-{% block title %}Envoyer un SMS - IsoMessage{% endblock %}
+    {% block title %}Envoyer un SMS - IsoMessage{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
-        .sms-form-container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
+    {% block stylesheets %}
+        {{ parent() }}
+        {# Assurez-vous d'avoir Font Awesome pour les icônes #}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <style>
+            /* Styles généraux */
+            body {
+                background-color: #f8f9fa; /* Fond clair */
+                font-family: 'Inter', sans-serif; /* Police moderne */
+            }
 
-        .sms-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e9ecef;
-        }
+            .sms-form-container {
+                max-width: 900px;
+                margin: 2rem auto;
+                padding: 0 1rem;
+                background-color: #ffffff; /* Fond blanc pour le formulaire */
+                border-radius: 12px; /* Coins arrondis */
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Ombre douce */
+            }
 
-        .sms-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
+            .sms-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+                padding: 1.5rem 0;
+                border-bottom: 1px solid #e9ecef;
+            }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+            .sms-header h1 {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #343a40;
+                margin: 0;
+            }
 
-        @media (max-width: 768px) {
             .form-grid {
-                grid-template-columns: 1fr;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 2rem;
+                margin-bottom: 2rem;
             }
-        }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+            @media (max-width: 768px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
 
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #555;
-            font-size: 0.9rem;
-        }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
 
-        .required {
-            color: #dc3545;
-        }
+            .form-label {
+                display: block;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+                color: #495057;
+                font-size: 0.95rem;
+            }
 
-        .form-control, .form-select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            background-color: #fff;
-        }
+            .required {
+                color: #dc3545;
+            }
 
-        .form-control:focus, .form-select:focus {
-            border-color: #3b82f6;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-        }
+            .form-control, .form-select {
+                width: 100%;
+                padding: 0.85rem 1rem;
+                border: 1px solid #ced4da;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+                background-color: #fff;
+            }
 
-        .form-control::placeholder {
-            color: #9ca3af;
-        }
+            .form-control:focus, .form-select:focus {
+                border-color: #007bff;
+                outline: 0;
+                box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+            }
 
-        .datetime-container {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+            .form-control::placeholder {
+                color: #9ca3af;
+            }
 
-        .clear-datetime {
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            padding: 0.5rem;
-            cursor: pointer;
-            color: #6b7280;
-        }
 
-        .clear-datetime:hover {
-            background: #e5e7eb;
-        }
+            .form-group .invalid-feedback {
+                display: block;
+                color: #dc3545;
+                font-size: 0.85rem;
+                margin-top: 0.25rem;
+                font-weight: 500;
+            }
 
-        .phone-input {
-            grid-column: span 2;
-        }
 
-        .sms-options {
-            background: #fef3c7;
-            border: 1px solid #f59e0b;
-            border-radius: 6px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-        }
+            .form-control.is-invalid {
+                border-color: #dc3545;
+            }
 
-        .sms-options .form-label {
-            font-weight: 600;
-            color: #92400e;
-            margin-bottom: 0.75rem;
-        }
 
-        .radio-group {
-            display: flex;
-            gap: 1.5rem;
-        }
+            .datetime-container {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
 
-        .radio-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+            .clear-datetime {
+                background: #e9ecef;
+                border: 1px solid #ced4da;
+                border-radius: 6px;
+                padding: 0.6rem 0.8rem;
+                cursor: pointer;
+                color: #495057;
+                font-size: 1.1rem;
+                line-height: 1;
+                transition: background-color 0.2s ease;
+            }
 
-        .radio-item input[type="radio"] {
-            margin: 0;
-        }
+            .clear-datetime:hover {
+                background: #dee2e6;
+            }
 
-        .radio-item label {
-            margin: 0;
-            color: #1f2937;
-            font-weight: normal;
-        }
+            .phone-input {
+                grid-column: span 2;
+            }
 
-        .message-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+            .sms-options, .encoding-options {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+                box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            }
 
-        @media (max-width: 768px) {
+            .sms-options .form-label, .encoding-options .form-label {
+                font-weight: 700;
+                color: #343a40;
+                margin-bottom: 1rem;
+            }
+
+            .radio-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+
+            .radio-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .radio-item input[type="radio"] {
+                margin: 0;
+                width: 1.25em;
+                height: 1.25em;
+            }
+
+            .radio-item label {
+                margin: 0;
+                color: #212529;
+                font-weight: normal;
+            }
+
             .message-section {
-                grid-template-columns: 1fr;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                margin-bottom: 2rem;
             }
-        }
 
-        .message-textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
+            @media (max-width: 768px) {
+                .message-section {
+                    grid-template-columns: 1fr;
+                }
+            }
 
-        .preview-section {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 1rem;
-        }
+            .message-textarea {
+                min-height: 150px;
+                resize: vertical;
+            }
 
-        .preview-label {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
+            .preview-section {
+                background: #e9f5ff;
+                border: 1px solid #cce5ff;
+                border-radius: 10px;
+                padding: 1.5rem;
+                box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1);
+            }
 
-        .message-preview {
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            padding: 0.75rem;
-            min-height: 100px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: #4b5563;
-        }
+            .preview-label {
+                font-weight: 700;
+                color: #0056b3;
+                margin-bottom: 1rem;
+                font-size: 1.05rem;
+            }
 
-        .action-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e9ecef;
-        }
+            .message-preview {
+                background: #ffffff;
+                border: 1px solid #b3d7ff;
+                border-radius: 6px;
+                padding: 1rem;
+                min-height: 120px;
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 0.9rem;
+                color: #212529;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            text-decoration: none;
-            border: 1px solid transparent;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.15s ease-in-out;
-        }
+            .message-counter {
+                background: #d4edda;
+                border: 1px solid #28a745;
+                border-radius: 8px;
+                padding: 1rem;
+                margin-top: 1.5rem;
+                font-size: 0.9rem;
+                color: #155724;
+                font-weight: 600;
+            }
 
-        .btn-secondary {
-            background-color: #f3f4f6;
-            color: #374151;
-            border-color: #d1d5db;
-        }
+            .message-parts {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.75rem;
+            }
 
-        .btn-secondary:hover {
-            background-color: #e5e7eb;
-        }
+            .character-count {
+                text-align: right;
+                font-size: 0.85rem;
+                color: #6c757d;
+                margin-top: 0.5rem;
+                font-weight: normal;
+            }
 
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
+            .message-part {
+                background: #f0f8ff;
+                border: 1px solid #a8d6f5;
+                border-radius: 6px;
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+                font-size: 0.85rem;
+                color: #34495e;
+                word-break: break-all;
+            }
 
-        .btn-primary:hover {
-            background-color: #2563eb;
-            border-color: #2563eb;
-        }
+            .message-part-header {
+                font-weight: 700;
+                color: #007bff;
+                margin-bottom: 0.5rem;
+            }
 
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 6px;
-            border: 1px solid transparent;
-        }
+            .action-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+                margin-top: 2.5rem;
+                padding-top: 2rem;
+                border-top: 1px solid #e9ecef;
+            }
 
-        .alert-success {
-            color: #065f46;
-            background-color: #d1fae5;
-            border-color: #a7f3d0;
-        }
+            .btn {
+                padding: 0.9rem 2rem;
+                border-radius: 8px;
+                font-weight: 600;
+                text-decoration: none;
+                border: 1px solid transparent;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.75rem;
+                transition: all 0.2s ease-in-out;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            }
 
-        .alert-danger {
-            color: #991b1b;
-            background-color: #fee2e2;
-            border-color: #fecaca;
-        }
+            .btn-secondary {
+                background-color: #6c757d;
+                color: white;
+                border-color: #6c757d;
+            }
 
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #6b7280;
-            cursor: pointer;
-        }
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                border-color: #545b62;
+                transform: translateY(-1px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            }
 
-        .info-icon {
-            color: #6b7280;
-            margin-left: 0.25rem;
-        }
+            .btn-primary {
+                background-color: #28a745;
+                color: white;
+                border-color: #28a745;
+            }
 
-        .character-count {
-            text-align: right;
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 0.25rem;
-        }
+            .btn-primary:hover {
+                background-color: #218838;
+                border-color: #1e7e34;
+                transform: translateY(-1px);
+                box-shadow: 0 5px 15px rgba(40, 167, 69, 0.25);
+            }
 
+            .alert {
+                padding: 1.25rem;
+                margin-bottom: 2rem;
+                border-radius: 8px;
+                border: none;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
 
-        .recipient-section {
-            display: none;
-            margin-bottom: 1.5rem;
-        }
-        .recipient-section.active {
-            display: block;
-        }
+            .alert-success {
+                color: #0f5132;
+                background-color: #d1e7dd;
+            }
 
-        .recipient-options .radio-item {
-            display: inline-flex;
-            margin-right: 20px;
-        }
-    </style>
-{% endblock %}
+            .alert-danger {
+                color: #842029;
+                background-color: #f8d7da;
+            }
 
-{% block body %}
-<div class="sms-form-container">
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success" role="alert">
-            {{ message }}
+            .close-btn {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: inherit;
+                cursor: pointer;
+                margin-left: auto;
+                opacity: 0.7;
+                transition: opacity 0.2s ease;
+            }
+            .close-btn:hover {
+                opacity: 1;
+            }
+
+            .info-icon {
+                color: #6c757d;
+                margin-left: 0.4rem;
+                font-size: 0.9em;
+            }
+
+            .recipient-section {
+                display: none;
+                margin-bottom: 2rem;
+            }
+            .recipient-section.active {
+                display: block;
+            }
+
+            .recipient-options .radio-item {
+                display: inline-flex;
+                margin-right: 25px;
+            }
+
+            .form-text {
+                font-size: 0.85rem;
+                color: #6c757d;
+                margin-top: 0.5rem;
+            }
+        </style>
+    {% endblock %}
+
+    {% block body %}
+    <div class="sms-form-container">
+
+        {% for message in app.flashes('sms_send_success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> {{ message }}
+                <button type="button" class="btn-close close-btn" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> {{ message }}
+                <button type="button" class="btn-close close-btn" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <div class="sms-header">
+            <h1>Envoyer un message</h1>
         </div>
-    {% endfor %}
-    {% for message in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">
-            {{ message }}
-        </div>
-    {% endfor %}
 
-    <div class="sms-header">
-        <h1>Envoyer un message</h1>
-    </div>
 
-    {{ form_start(form) }}
+        {{ form_start(form) }}
 
-    <div class="form-grid">
-        <div class="form-group">
-            {{ form_row(form.sender, {
-                'attr': {'class': 'form-select'},
-                'label_attr': {'class': 'form-label'}
-            }) }}
-        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                {{ form_row(form.sender, {
+                    'attr': {'class': 'form-select'},
+                    'label_attr': {'class': 'form-label'}
+                }) }}
+            </div>
 
-        <div class="form-group">
-            {{ form_row(form.smsType, {
-                'attr': {'class': 'form-select'},
-                'label_attr': {'class': 'form-label'}
-            }) }}
+            <div class="form-group">
+                {{ form_row(form.smsType, {
+                    'attr': {'class': 'form-select'},
+                    'label_attr': {'class': 'form-label'}
+                }) }}
+            </div>
         </div>
 
-        <div class="form-group">
-            {{ form_row(form.timezone, {
-                'attr': {'class': 'form-select'},
-                'label_attr': {'class': 'form-label'}
-            }) }}
+        <div class="form-group recipient-choice">
+            {{ form_label(form.recipientOption, null, {'label_attr': {'class': 'form-label'}}) }}
+            <div class="radio-group">
+                {% for child in form.recipientOption %}
+                    <div class="radio-item">
+                        {{ form_widget(child) }}
+                        {{ form_label(child) }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            {{ form_errors(form.recipientOption) }}
         </div>
-    </div>
 
-
-    <div class="form-group recipient-choice">
-        {{ form_label(form.recipientOption, null, {'label_attr': {'class': 'form-label'}}) }}
-        <div class="radio-group">
-            {% for child in form.recipientOption %}
-                <div class="radio-item">
-                    {{ form_widget(child) }}
-                    {{ form_label(child) }}
-                </div>
-            {% endfor %}
-        </div>
-        {{ form_errors(form.recipientOption) }}
-    </div>
-
-
-    <div id="manual-numbers-section" class="recipient-section">
-        <div class="form-group">
-            {{ form_row(form.directNumbers, {
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Saisissez les numéros (un par ligne, ex: +229XXXXXXXXXX)',
-                    'rows': 5
-                },
-                'label_attr': {'class': 'form-label'},
-                'help': 'Séparez les numéros par des sauts de ligne. Ex: +2290197000001'
-            }) }}
-        </div>
-    </div>
-
-    <div id="group-selection-section" class="recipient-section">
-        <div class="form-group"> {# Ajoutez cette div pour conserver le style form-group #}
-            {# Assurez-vous que l'ID et la classe pour Select2 sont appliqués ici #}
-            {{ form_row(form.contactGroups, {
-                'attr': {'class': 'form-control select2-enable', 'id': 'sms_contact_groups_select'},
-                'label_attr': {'class': 'form-label'},
-                'help': 'Sélectionnez un groupe de contacts existants.'
-            }) }}
-        </div>
-    </div>
-
-    <div id="file-import-section" class="recipient-section">
-        <div class="form-group"> {# Ajoutez cette div pour conserver le style form-group #}
-            {{ form_row(form.importFile, {
-                'attr': {'class': 'form-control'},
-                'label_attr': {'class': 'form-label'},
-                'help': 'Téléchargez un fichier CSV ou TXT avec un numéro par ligne.'
-            }) }}
-        </div>
-    </div>
-
-    {# Section pour la date et heure d'envoi #}
-    <div class="form-grid">
-        <div class="form-group">
-            <label class="form-label">
-                Date et heure d'envoi
-                <i class="fas fa-info-circle info-icon" title="Laissez vide pour envoi immédiat"></i>
-            </label>
-            <div class="datetime-container">
-                {{ form_widget(form.scheduleAt, {
+        <div id="manual-numbers-section" class="recipient-section">
+            <div class="form-group">
+                {{ form_label(form.directNumbers) }}
+                {{ form_widget(form.directNumbers, {
                     'attr': {
                         'class': 'form-control',
-                        'placeholder': 'Gardez vide pour l\'envoi instantané'
+                        'placeholder': 'Saisissez les numéros (un par ligne, ex: +229012345678)',
+                        'rows': 5
                     }
                 }) }}
-                <button type="button" class="clear-datetime" onclick="this.previousElementSibling.value=''">×</button>
+
+                {{ form_errors(form.directNumbers) }}
+                {{ form_help(form.directNumbers) }}
             </div>
         </div>
+
+        <div id="group-selection-section" class="recipient-section">
+            <div class="form-group">
+                {{ form_row(form.contactGroups, {
+                    'attr': {'class': 'form-control select2-enable', 'id': 'sms_contact_groups_select'},
+                    'label_attr': {'class': 'form-label'},
+                    'help': 'Sélectionnez un ou plusieurs groupes de contacts existants.'
+                }) }}
+            </div>
+        </div>
+
+        <div id="file-import-section" class="recipient-section">
+            <div class="form-group">
+                {{ form_row(form.importFile, {
+                    'attr': {'class': 'form-control'},
+                    'label_attr': {'class': 'form-label'},
+                    'help': 'Téléchargez un fichier CSV ou TXT avec un numéro par ligne. Chaque numéro doit être au format +22901XXXXXXXX.'
+                }) }}
+            </div>
+        </div>
+
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">
+                    Date et heure d'envoi
+                    <i class="fas fa-info-circle info-icon" title="Laissez vide pour envoi immédiat"></i>
+                </label>
+                <div class="datetime-container">
+                    {{ form_widget(form.scheduleAt, {
+                        'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Gardez vide pour l\'envoi instantané'
+                        }
+                    }) }}
+                    <button type="button" class="clear-datetime" onclick="this.previousElementSibling.value=''">×</button>
+                </div>
+                {{ form_errors(form.scheduleAt) }}
+            </div>
+        </div>
+
+
+        <div class="encoding-options">
+            <label class="form-label">Envoyez le SMS</label>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" id="encoding-with-accents" name="encoding" value="with-accents" checked>
+                    <label for="encoding-with-accents">Avec accents {#UTF-8#} </label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="encoding-without-accents" name="encoding" value="without-accents">
+                    <label for="encoding-without-accents">Sans accents {#ASCII#}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-section">
+            <div class="form-group">
+                {{ form_label(form.messageContent) }}
+                {{ form_widget(form.messageContent, {
+                    'attr': {
+                        'class': 'form-control message-textarea',
+                        'placeholder': 'Tapez votre message...'
+                    }
+                }) }}
+                {{ form_errors(form.messageContent) }}
+                <div class="character-count">
+                    <span id="char-count">0</span>/160 caractères
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">Aperçu du message à envoyer <span class="required">*</span></div>
+                <div class="message-preview" id="message-preview">
+                    Votre message apparaîtra ici...
+                </div>
+
+                <div class="message-counter" id="message-counter">
+                    <div class="message-parts">
+                        <span><strong>Nombre de SMS:</strong> <span id="sms-count">0</span></span>
+                        <span><strong>Caractères restants:</strong> <span id="remaining-chars">160</span></span>
+                    </div>
+                    <div id="message-parts-preview"></div>
+                </div>
+            </div>
+        </div>
+
+
+        {{ form_row(form.submit) }}
+
+        {{ form_end(form) }}
     </div>
+    {% endblock %}
 
-    <div class="message-section">
-        <div class="form-group">
-            {{ form_row(form.messageContent, {
-                'attr': {
-                    'class': 'form-control message-textarea',
-                    'placeholder': 'Tapez votre message...',
-                    'maxlength': 1600
-                },
-                'label_attr': {'class': 'form-label'}
-            }) }}
-            <div class="character-count">
-                <span id="char-count">0</span>/160 caractères
+
+    {% block modals %}
+        <div class="modal fade" id="numberErrorModal" tabindex="-1" aria-labelledby="numberErrorModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="numberErrorModalLabel">Erreur de Format de Numéro</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="numberErrorModalBody">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
             </div>
         </div>
+    {% endblock %}
 
-        <div class="preview-section">
-            <div class="preview-label">Aperçu du message à envoyer <span class="required">*</span></div>
-            <div class="message-preview" id="message-preview">
-                Votre message apparaîtra ici...
-            </div>
-        </div>
-    </div>
+    {% block javascripts %}
+        {{ parent() }}
+        {# Assurez-vous que la librairie Bootstrap JS est chargée. Par exemple, si vous utilisez Webpack Encore: #}
+        {# <script src="{{ asset('build/app.js') }}"></script> #}
+        {# Ou via un CDN pour Bootstrap 5 si vous ne l'avez pas déjà inclus globalement: #}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        {# Si vous utilisez Select2, assurez-vous qu'il est chargé #}
+        {# <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> #}
 
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.querySelector('.message-textarea');
+            const charCountSpan = document.getElementById('char-count');
+            const messagePreview = document.getElementById('message-preview');
+            const smsCountSpan = document.getElementById('sms-count');
+            const remainingCharsSpan = document.getElementById('remaining-chars');
+            const messagePartsPreview = document.getElementById('message-parts-preview');
+            const encodingRadios = document.querySelectorAll('input[name="encoding"]');
 
-    {{ form_end(form) }}
-</div>
+            const smsTypeSelect = document.querySelector('select[name="sms_message_type_form[smsType]"]');
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const messageInput = document.querySelector('.message-textarea');
-    const charCountSpan = document.getElementById('char-count');
-    const messagePreview = document.getElementById('message-preview');
+            const FLASH_MAX_CHARS = 50;
+            const CLASSIC_MAX_CHARS = 160;
+            let currentMaxChars = CLASSIC_MAX_CHARS;
 
-    const smsTypeSelect = document.querySelector('select[name="sms_message_type_form[smsType]"]');
+            const recipientOptionRadios = document.querySelectorAll('input[name="sms_message_type_form[recipientOption]"]');
+            const manualNumbersSection = document.getElementById('manual-numbers-section');
+            const groupSelectionSection = document.getElementById('group-selection-section');
+            const fileImportSection = document.getElementById('file-import-section');
 
-
-    const FLASH_MAX_CHARS = 50;
-    const CLASSIC_MAX_CHARS = 200;
-    let currentMaxChars = CLASSIC_MAX_CHARS;
-
-
-    const recipientOptionRadios = document.querySelectorAll('input[name="sms_message_type_form[recipientOption]"]');
-    const manualNumbersSection = document.getElementById('manual-numbers-section');
-    const groupSelectionSection = document.getElementById('group-selection-section');
-    const fileImportSection = document.getElementById('file-import-section');
-
-
-    function updateMessage() {
-        let text = messageInput.value;
-        let currentLength = text.length;
-
-
-        if (currentLength > currentMaxChars) {
-            text = text.substring(0, currentMaxChars);
-            messageInput.value = text;
-            currentLength = currentMaxChars;
-        }
-
-        charCountSpan.textContent = currentLength;
-        messagePreview.textContent = text || 'Votre message apparaîtra ici...';
+            const smsForm = document.querySelector('form[name="sms_message_type_form"]');
+            const directNumbersTextarea = document.getElementById('sms_message_type_form_directNumbers');
+            const numberErrorModal = new bootstrap.Modal(document.getElementById('numberErrorModal'));
+            const numberErrorModalBody = document.getElementById('numberErrorModalBody');
 
 
-        if (currentLength > currentMaxChars * 0.9) {
-            charCountSpan.style.color = '#dc3545';
-        } else if (currentLength > currentMaxChars * 0.7) {
-            charCountSpan.style.color = '#f59e0b';
-        } else {
-            charCountSpan.style.color = '#6b7280';
-        }
+            const phoneNumberRegex = /^\+22901\d{8}$/;
 
 
-        if (charCountSpan && charCountSpan.nextSibling) {
-            charCountSpan.nextSibling.textContent = `/${currentMaxChars} caractères`;
-        }
-    }
-
-
-    function determineCharacterLimit() {
-        if (smsTypeSelect) {
-            const selectedSmsType = smsTypeSelect.value;
-            if (selectedSmsType === 'flash') {
-                currentMaxChars = FLASH_MAX_CHARS;
-            } else { // 'classic'
-                currentMaxChars = CLASSIC_MAX_CHARS;
+            function removeAccents(str) {
+                return str.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[àáâãäå]/g, 'a')
+                        .replace(/[èéêë]/g, 'e')
+                        .replace(/[ìíîï]/g, 'i')
+                        .replace(/[òóôõö]/g, 'o')
+                        .replace(/[ùúûü]/g, 'u')
+                        .replace(/[ýÿ]/g, 'y')
+                        .replace(/[ñ]/g, 'n')
+                        .replace(/[ç]/g, 'c')
+                        .replace(/[ÀÁÂÃÄÅ]/g, 'A')
+                        .replace(/[ÈÉÊË]/g, 'E')
+                        .replace(/[ÌÍÎÏ]/g, 'I')
+                        .replace(/[ÒÓÔÕÖ]/g, 'O')
+                        .replace(/[ÙÚÛÜ]/g, 'U')
+                        .replace(/[ÝŸ]/g, 'Y')
+                        .replace(/[Ñ]/g, 'N')
+                        .replace(/[Ç]/g, 'C');
             }
+
+
+            function formatText(text) {
+                const encodingOption = document.querySelector('input[name="encoding"]:checked').value;
+                return encodingOption === 'without-accents' ? removeAccents(text) : text;
+            }
+
+
+            function splitMessage(text, maxLength) {
+                if (text.length <= maxLength) {
+                    return [text];
+                }
+
+                const parts = [];
+                let currentPart = '';
+                const words = text.split(' ');
+
+                for (const word of words) {
+                    const testPart = currentPart + (currentPart ? ' ' : '') + word;
+
+                    if (testPart.length <= maxLength) {
+                        currentPart = testPart;
+                    } else {
+                        if (currentPart) {
+                            parts.push(currentPart);
+                            currentPart = word;
+                        } else {
+
+                            for (let i = 0; i < word.length; i += maxLength) {
+                                parts.push(word.substring(i, i + maxLength));
+                            }
+                            currentPart = '';
+                        }
+                    }
+                }
+
+                if (currentPart) {
+                    parts.push(currentPart);
+                }
+
+                return parts;
+            }
+
+
+            function updateMessage() {
+                let originalText = messageInput.value;
+                let formattedText = formatText(originalText);
+
+
+                const messageParts = splitMessage(formattedText, currentMaxChars);
+                const totalParts = messageParts.length;
+
+
+                charCountSpan.textContent = formattedText.length;
+                smsCountSpan.textContent = totalParts;
+
+
+                const currentPartLength = messageParts[totalParts - 1]?.length || 0;
+                const remainingChars = currentMaxChars - currentPartLength;
+                remainingCharsSpan.textContent = remainingChars;
+
+
+                messagePreview.textContent = formattedText || 'Votre message apparaîtra ici...';
+
+
+                messagePartsPreview.innerHTML = '';
+                if (totalParts > 1) {
+                    messageParts.forEach((part, index) => {
+                        const partDiv = document.createElement('div');
+                        partDiv.className = 'message-part';
+                        partDiv.innerHTML = `
+                            <div class="message-part-header">SMS ${index + 1}/${totalParts} (${part.length}/${currentMaxChars} caractères)</div>
+                            <div>${part}</div>
+                        `;
+                        messagePartsPreview.appendChild(partDiv);
+                    });
+                }
+
+
+                if (remainingChars < 10) {
+                    charCountSpan.style.color = '#dc3545';
+                    remainingCharsSpan.style.color = '#dc3545';
+                } else if (remainingChars < 30) {
+                    charCountSpan.style.color = '#f59e0b';
+                    remainingCharsSpan.style.color = '#f59e0b';
+                } else {
+                    charCountSpan.style.color = '#6b7280';
+                    remainingCharsSpan.style.color = '#6b7280';
+                }
+
+
+                if (totalParts > 1) {
+                    smsCountSpan.style.color = '#0288d1';
+                    smsCountSpan.style.fontWeight = 'bold';
+                } else {
+                    smsCountSpan.style.color = '#6b7280';
+                    smsCountSpan.style.fontWeight = 'normal';
+                }
+            }
+
+            function determineCharacterLimit() {
+                if (smsTypeSelect) {
+                    const selectedSmsType = smsTypeSelect.value;
+                    currentMaxChars = selectedSmsType === 'flash' ? FLASH_MAX_CHARS : CLASSIC_MAX_CHARS;
+                    updateMessage();
+                }
+            }
+
+
+            function handleEncodingChange() {
+                updateMessage();
+            }
+
+            if (messageInput) messageInput.addEventListener('input', updateMessage);
+            if (smsTypeSelect) {
+                smsTypeSelect.addEventListener('change', determineCharacterLimit);
+                determineCharacterLimit();
+            }
+            encodingRadios.forEach(radio => radio.addEventListener('change', handleEncodingChange));
+
+            function toggleRecipientSections() {
+                const selectedOption = document.querySelector('input[name="sms_message_type_form[recipientOption]"]:checked')?.value;
+                manualNumbersSection.classList.remove('active');
+                groupSelectionSection.classList.remove('active');
+                fileImportSection.classList.remove('active');
+                if (selectedOption === 'manual') manualNumbersSection.classList.add('active');
+                else if (selectedOption === 'group') {
+                    groupSelectionSection.classList.add('active');
+                    const smsContactGroupsSelect = document.getElementById('sms_contact_groups_select');
+                    if (smsContactGroupsSelect && typeof $ !== 'undefined' && $.fn.select2 && !$(smsContactGroupsSelect).data('select2')) {
+                        $(smsContactGroupsSelect).select2({
+                            placeholder: 'Sélectionnez un ou plusieurs groupes',
+                            allowClear: true
+                        });
+                    }
+                }
+                else if (selectedOption === 'import') fileImportSection.classList.add('active');
+            }
+
+            recipientOptionRadios.forEach(radio => radio.addEventListener('change', toggleRecipientSections));
+
+            smsForm.addEventListener('submit', function (event) {
+                const selectedOption = document.querySelector('input[name="sms_message_type_form[recipientOption]"]:checked')?.value;
+                if (selectedOption === 'manual') {
+                    const numbersValue = directNumbersTextarea.value.trim();
+                    let hasError = false;
+                    const errorMessages = [];
+
+                    if (numbersValue) { // Si le champ n'est pas vide
+                        const numbers = numbersValue.split(/[\r\n]+/).filter(n => n.trim() !== ''); // Diviser et filtrer les lignes vides
+
+                        if (numbers.length === 0) { // Si le champ contient seulement des espaces ou sauts de ligne
+                            errorMessages.push('Veuillez saisir au moins un numéro de téléphone.');
+                            hasError = true;
+                        } else {
+                            numbers.forEach(number => {
+                                const trimmedNumber = number.trim();
+                                if (!phoneNumberRegex.test(trimmedNumber)) {
+                                    errorMessages.push(`Le numéro "${trimmedNumber}" n'est pas au format attendu (+22901XXXXXXXX).`);
+                                    hasError = true;
+                                }
+                            });
+                        }
+                    } else {
+                        // Si vous voulez que le champ soit obligatoire quand "manual" est choisi, décommentez ceci:
+                        errorMessages.push('Veuillez saisir au moins un numéro de téléphone.'); // Rendu obligatoire si manuel
+                        hasError = true;
+                    }
+
+                    if (hasError) {
+                        event.preventDefault(); // Empêche la soumission du formulaire
+                        numberErrorModalBody.innerHTML = '<ul>' + errorMessages.map(msg => `<li>${msg}</li>`).join('') + '</ul>';
+                        numberErrorModal.show(); // Affiche le popup
+
+                        // Optionnel: Ajouter une classe d'erreur visuelle au textarea
+                        directNumbersTextarea.classList.add('is-invalid');
+                    } else {
+                        // Si la validation JS réussit, retirer la classe is-invalid au cas où elle était présente
+                        directNumbersTextarea.classList.remove('is-invalid');
+                    }
+                }
+            });
+
+            toggleRecipientSections();
             updateMessage();
-        }
-    }
-
-    if (messageInput) {
-        messageInput.addEventListener('input', updateMessage);
-
-    }
-
-
-    if (smsTypeSelect) {
-        smsTypeSelect.addEventListener('change', determineCharacterLimit);
-        determineCharacterLimit();
-    }
-
-    function toggleRecipientSections() {
-
-        const selectedOption = document.querySelector('input[name="sms_message_type_form[recipientOption]"]:checked')?.value;
-
-        // Masquer toutes les sections
-        manualNumbersSection.classList.remove('active');
-        groupSelectionSection.classList.remove('active');
-        fileImportSection.classList.remove('active');
-
-
-        if (selectedOption === 'manual') {
-            manualNumbersSection.classList.add('active');
-        } else if (selectedOption === 'group') {
-            groupSelectionSection.classList.add('active');
-
-            const smsContactGroupsSelect = document.getElementById('sms_contact_groups_select');
-            if (smsContactGroupsSelect && typeof $ !== 'undefined' && $.fn.select2 && !$(smsContactGroupsSelect).data('select2')) {
-                 $(smsContactGroupsSelect).select2({
-                    placeholder: 'Sélectionnez un ou plusieurs groupes',
-                    allowClear: true
-                 });
-             }
-        } else if (selectedOption === 'import') {
-            fileImportSection.classList.add('active');
-        }
-    }
-
-    recipientOptionRadios.forEach(radio => {
-        radio.addEventListener('change', toggleRecipientSections);
-    });
-
-
-    toggleRecipientSections();
-
-});
-</script>
-{% endblock %}
+        });
+        </script>
+    {% endblock %}
